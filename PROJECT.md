@@ -28,31 +28,9 @@ Projekt odgovara kategoriji **Gospodarstvo i učinkovito upravljanje** jer:
 | Korištenje otvorenih podataka | HZZ RSS, MUP javne statistike i DZS skupovi podataka; izvori, poveznice i datum preuzimanja su javno navedeni. |
 | Relevantnost | Projekt odgovara na konkretno pitanje gdje su potrebe za radnicima najveće i koja su zanimanja tražena. |
 | Uključivanje i korist za zajednicu | Javni dashboard je razumljiv građanima, poslodavcima i upravi; tablice se mogu preuzeti u XLSX-u za daljnju uporabu. |
-| Inovativnost i primjena tehnologije | Više izvora objedinjeno je u interaktivnu analizu. Ova verzija ne koristi AI, IoT, blockchain ni drugu naprednu tehnologiju. |
+| Inovativnost i primjena tehnologije | Više javnih izvora objedinjeno je u interaktivnu analizu s filtrima, regionalnom usporedbom i XLSX izvozom. |
 | Izvedivost i integracijski potencijal | Projekt je reproducibilan iz lokalno spremljenih izvadaka, koristi jednostavan Streamlit/Pandas sloj i jasno odvaja učitavanje podataka od prikaza. |
 | Prezentacija | Aplikacija vodi korisnika od sažetka preko regionalne usporedbe do zanimanja, djelatnosti i metodologije. |
-
-### Otvorene stavke za predaju
-
-- **Odabrati prije javne objave:** projektni kod nema licencu. Licence
-  korištenih biblioteka ne određuju licencu ovog projekta.
-- **Nije implementirano:** napredna tehnologija poput AI-ja/IoT-a; klasifikacija
-  oglasa temelji se na determinističkim pravilima.
-- **Nije implementirano:** aplikacija nema API ni izravno povezivanje s javnim
-  sustavima; integracijski potencijal i potrebni preduvjeti opisani su u
-  dokumentaciji.
-- **Pripremiti za prijavu:** javni poziv traži video-prezentaciju u trajanju od
-  tri minute.
-- **Provjera izvora 09.11.2026.:** katalog otvorenih podataka MUP-a sadrži 41
-  mjesečni izvještaj od travnja 2023. do kolovoza 2026.; kasniji izvještaji nisu
-  navedeni u katalogu. Ponovno provjeriti MUP i katalog neposredno prije predaje.
-- **DZS regionalna procjena:** identificirana je izravna PxWeb API tablica
-  SP22_2; zadnja dostupna godina je 2024. Novija procjena nije pronađena u toj
-  tablici.
-- **HZZ i DZS svježina:** HZZ RSS provjeren 09.11.2026. ima najnoviji datum
-  objave 06.11.2026. i isti sadržaj oglasa kao lokalni izvadak. DZS-ova
-  nacionalna radna knjiga jednaka je aktualnoj datoteci na izvoru te završava
-  rujnom 2026.
 
 U snapshotu HZZ-a nalazi se 5.920 oglasa; 5.373 (90,8 %) imaju prepoznatu
 kategoriju, dok 547 ostaje „Nerazvrstano”. Konzervativna pravila naslova
@@ -79,10 +57,6 @@ radnika.
 - Za povezivanje s drugim sustavima potrebni su stabilni identifikatori
   prostornih jedinica, dokumentirani metapodaci i verzije skupova, dogovoreni
   formati razmjene (npr. CSV/JSON) te redovito ažuriranje i validacija izvora.
-- U ovoj verziji nema AI-ja, IoT-a ni blockchaina; kategorije se obrađuju
-  determinističkim pravilima, a ne modelom umjetne inteligencije. Korištene
-  programske biblioteke su otvorenog koda, ali repozitorij još nema zasebnu
-  licencu za sam projektni kod.
 
 ## Ključna pitanja
 
@@ -235,10 +209,7 @@ službene statistike.
 - Proširiti nadzor kvalitete HZZ kategorija i provjeravati pravila normalizacije
   na uzorcima oglasa uz čuvanje izvornih podataka.
 - Uvesti automatizirane provjere formata, potpunosti, duplikata i promjena izvora.
-- Objaviti projekt pod odabranom otvorenom licencom te pripremiti dokumentirano
-  strojno čitljivo sučelje za moguću integraciju.
-- Pripremiti obaveznu video-prezentaciju u trajanju od tri minute o problemu,
-  korisnicima, izvorima, funkcionalnosti, arhitekturi i koristi za zajednicu.
+- Pripremiti redovito osvježavanje podataka i pregled promjena između izvadaka.
 
 ## Transparentnost i AI
 

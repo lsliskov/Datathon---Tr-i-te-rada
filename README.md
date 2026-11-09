@@ -63,23 +63,5 @@ Pokrenite testove obrade podataka i prikaza svih stranica:
 python -m unittest discover -s tests -v
 ```
 
-## Status za predaju
-
-- Prototip pokriva izazov **Gospodarstvo i učinkovito upravljanje**.
-- U spremljenom HZZ izvatku ima 5.920 oglasa; 5.373 (90,8 %) imaju prepoznatu
-  kategoriju, a 547 ostaje nerazvrstano nakon konzervativnih pravila za jasne
-  nazive zanimanja. Klasifikacija je dostupna za provjeru uz pojedinačne oglase.
-- Provjera izvora 09.11.2026.: katalog otvorenih podataka MUP-a sadrži 41
-  izvještaj od travnja 2023. do kolovoza 2026.; u katalogu nema kasnijih
-  mjesečnih izvještaja. DZS API tablica regionalne procjene završava 2024.
-  godinom. Ponovno provjeriti izvore neposredno prije predaje.
-- HZZ RSS provjeren istog dana: najnoviji datum objave je 06.11.2026. i sadržaj
-  oglasa odgovara lokalnom izvatku. DZS-ova nacionalna radna knjiga također je
-  jednaka aktualnoj datoteci na izvoru, s podacima do rujna 2026.
-- Javni poziv traži video-prezentaciju u trajanju od tri minute; video nije dio
-  ovog projekta.
-- Projektni kod nema odabranu licencu. Licence korištenih biblioteka ne
-  određuju licencu ovog projekta.
-
-Detaljni tehnički i metodološki status te ograničenja navedeni su u
+Detaljni opis projekta, metodologija, izvori i ograničenja navedeni su u
 [PROJECT.md](PROJECT.md).

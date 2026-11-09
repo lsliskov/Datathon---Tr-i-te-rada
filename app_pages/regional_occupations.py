@@ -16,10 +16,11 @@ default_categories = categories[: min(8, len(categories))]
 
 with st.sidebar:
     st.subheader("Filteri")
-    selected_categories = st.multiselect(
+    selected_categories = st.pills(
         "Skupine zanimanja",
         categories,
         default=default_categories,
+        selection_mode="multi",
         help="Odaberi skupine za usporedbu. Nerazvrstani oglasi nisu uključeni u analizu zanimanja.",
     )
     measure = st.selectbox(
