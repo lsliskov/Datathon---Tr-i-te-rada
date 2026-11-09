@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-2"?>
+<rss version="2.0">
+<channel>
+
+  <title>Hrvatski zavod za zapošljavanje</title> 
+  <description>Pregled slobodnih radnih mjesta</description> 
+  <link>http://burzarada.hzz.hr</link> 
+  <language>hr</language> 
+  <ttl>60</ttl>
+  <copyright>Copyright 2010, Hrvatski zavod za zapošljavanje, burzarada.hzz.hr</copyright> 
+  <webMaster>info@hzz.hr</webMaster> 
+  <managingEditor>info@hzz.hr</managingEditor> 
+  <image>
+	<title></title> 
+	<width></width> 
+	<height></height> 
+	<url></url> 
+	<link></link> 
+  </image>
+
+<item>
+<title />
+<subject />
+<pubDate>04.03.2024</pubDate>
+<description>Opis posla: Sakupljanje i mužnja ovaca, hranjenje ovaca, okretanje i mazanje sira, pranje dasaka, Kategorija: JEDNOSTAVNA POLJOPRIVREDNA, ŠUMARSKA I RIBARSKA ZANIMANJA, Rok za prijavu: 19.03.2024, Mjesto rada: PAG, Općina: PAG, Županija: ZADARSKA</description>
+<link>http://burzarada.hzz.hr/RadnoMjesto_Ispis.aspx?WebSifra=141337687</link>
+<guid>http://burzarada.hzz.hr/RadnoMjesto_Ispis.aspx?WebSifra=141337687</guid>
+</item>
+</channel></rss>
