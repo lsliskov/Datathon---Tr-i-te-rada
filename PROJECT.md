@@ -182,8 +182,7 @@ Korisnik može:
 - MUP-ove dozvole su izdane dozvole, a ne broj trenutačno zaposlenih stranih radnika.
 - MUP-ovi mjesečni izvještaji sadrže kumulativne vrijednosti do datuma izvještaja.
 - U priloženom izvatku ima 41 MUP izvještaj od travnja 2023. do kolovoza 2026.;
-  kasniji izvještaji nisu uključeni u snapshot ove verzije; prije predaje
-  provjeriti službeni izvor za novije objave.
+  kasniji izvještaji nisu uključeni u snapshot ove verzije.
 - MUP ne daje istu regionalnu razinu za Grad Zagreb i Zagrebačku županiju, pa su spojeni.
 - HZZ zanimanja i MUP djelatnosti nisu izravno usporedive klasifikacije.
 - DZS procjena stanovništva za regionalne stope odnosi se na 2024. godinu.
@@ -209,20 +208,6 @@ Korisnik može:
 Ograničenja su namjerno prikazana na stranici **Podaci i metodologija** kako bi
 korisnik mogao pravilno tumačiti rezultate i razlikovati opisni pokazatelj od
 službene statistike.
-
-## Budući razvoj
-
-- Automatizirati sigurno preuzimanje i verzioniranje izvora te ažurirati MUP-ove
-  izvještaje nakon njihove objave.
-- Nabaviti novije regionalne procjene stanovništva ili objasniti i ujednačiti
-  vremenski obuhvat nazivnika u regionalnim stopama.
-- Prije eventualnog indeksa ponude i potražnje pronaći vremenski i prostorno
-  usporedive podatke o slobodnim radnim mjestima i nezaposlenima; MUP-ove
-  dozvole ostaviti zasebnim pokazateljem.
-- Proširiti nadzor kvalitete HZZ kategorija i provjeravati pravila normalizacije
-  na uzorcima oglasa uz čuvanje izvornih podataka.
-- Uvesti automatizirane provjere formata, potpunosti, duplikata i promjena izvora.
-- Pripremiti redovito osvježavanje podataka i pregled promjena između izvadaka.
 
 ## Transparentnost i AI
 
