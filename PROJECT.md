@@ -27,6 +27,20 @@ dozvole nalaze se u zasebnom dijelu i ne ulaze u izračun pokazatelja oglasa.
 
 ![Regionalna analiza](docs/regionalna-analiza.png)
 
+### Sažetak
+
+Sažetak prikazuje ključne brojke projekta i najvažnije regionalne te
+demografske pokazatelje na jednom mjestu.
+
+![Sažetak tržišta rada](docs/sazetak.png)
+
+### Zanimanja i djelatnosti
+
+Stranica omogućuje pretragu HZZ oglasa i kategorija zanimanja te zasebno
+prikazuje MUP-ove djelatnosti s izdanim dozvolama.
+
+![Zanimanja i djelatnosti](docs/zanimanja-i-djelatnosti.png)
+
 ### Podaci i metodologija
 
 Ova stranica objašnjava izvore, obradu i ograničenja kako bi korisnik mogao

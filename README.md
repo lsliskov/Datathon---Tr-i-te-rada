@@ -36,6 +36,21 @@ Ova stranica uspoređuje regije, prikazuje demografski pregled stanovništva
 
 ![Regionalna analiza](docs/regionalna-analiza.png)
 
+### Sažetak
+
+Sažetak daje brzi pregled ukupnog broja oglasa, regije s najviše oglasa,
+demografskog konteksta i dostupnih vremenskih razdoblja podataka.
+
+![Sažetak tržišta rada](docs/sazetak.png)
+
+### Zanimanja i djelatnosti
+
+Ovdje se mogu pretražiti nazivi oglasa i HZZ kategorije, a zasebno se prikazuju
+djelatnosti u kojima su izdane MUP-ove dozvole. Zanimanja i djelatnosti nisu
+ista klasifikacija.
+
+![Zanimanja i djelatnosti](docs/zanimanja-i-djelatnosti.png)
+
 ### Podaci i metodologija
 
 Metodološka stranica objašnjava izvore, način obrade, ograničenja i značenje
