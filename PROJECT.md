@@ -10,6 +10,30 @@ Rezultat je namijenjen građanima, poslodavcima, lokalnoj upravi i donositeljima
 odluka koji žele istražiti gdje se objavljuje najviše HZZ oglasa, koja se
 zanimanja traže i u kojim su djelatnostima izdane MUP-ove dozvole za boravak i rad.
 
+## Pregled stranica
+
+### Zanimanja po regijama
+
+Početna stranica omogućuje usporedbu skupina zanimanja među regijama prema
+ukupnom broju oglasa, oglasima na 1.000 stanovnika i oglasima na 1.000
+stanovnika u dobi 15–64.
+
+![Početna stranica – zanimanja po regijama](docs/zanimanja-po-regijama.png)
+
+### Regionalna analiza
+
+Regionalna analiza prikazuje usporedbu regija i demografski kontekst. MUP-ove
+dozvole nalaze se u zasebnom dijelu i ne ulaze u izračun pokazatelja oglasa.
+
+![Regionalna analiza](docs/regionalna-analiza.png)
+
+### Podaci i metodologija
+
+Ova stranica objašnjava izvore, obradu i ograničenja kako bi korisnik mogao
+ispravno tumačiti rezultate.
+
+![Podaci i metodologija](docs/metodologija.png)
+
 ## Usklađenost s natjecanjem
 
 Projekt odgovara kategoriji **Gospodarstvo i učinkovito upravljanje** jer:

@@ -1,7 +1,47 @@
 # LabourPulse RH
 
-Streamlit aplikacija za razumljiv pregled potražnje za radnicima, regionalnih
-razlika i promjena u strukturi tržišta rada u Hrvatskoj.
+## Što je LabourPulse RH?
+
+LabourPulse RH je interaktivni pregled hrvatskog tržišta rada koji iz javno
+dostupnih podataka pokazuje:
+
+- koja se zanimanja najviše oglašavaju,
+- kako se potražnja razlikuje među regijama,
+- kako izgleda demografski kontekst regija,
+- koje su djelatnosti obuhvaćene izdanim MUP-ovim dozvolama za boravak i rad.
+
+Projekt je namijenjen građanima, poslodavcima, lokalnoj upravi, obrazovnim
+ustanovama i svima koji žele jednostavnije razumjeti regionalne potrebe za
+radnicima.
+
+> **Važno:** LabourPulse RH ne računa jedan zajednički „indeks pritiska”.
+> HZZ oglasi, demografija i MUP-ove dozvole prikazani su odvojeno kako se
+> različiti pokazatelji ne bi pogrešno tumačili kao ista pojava.
+
+## Brzi pregled aplikacije
+
+### Zanimanja po regijama
+
+Početna stranica stavlja zanimanja u prvi plan. Skupine zanimanja mogu se
+usporediti kao ukupan broj oglasa, broj oglasa na 1.000 stanovnika ili broj
+oglasa na 1.000 stanovnika u dobi 15–64.
+
+![Zanimanja po regijama](docs/zanimanja-po-regijama.png)
+
+### Regionalna analiza
+
+Ova stranica uspoređuje regije, prikazuje demografski pregled stanovništva
+15–64 i 65+ te zasebno daje MUP-ov kontekst. Demografski nazivnik odnosi se na
+2024., dok su HZZ oglasi noviji.
+
+![Regionalna analiza](docs/regionalna-analiza.png)
+
+### Podaci i metodologija
+
+Metodološka stranica objašnjava izvore, način obrade, ograničenja i značenje
+svakog pokazatelja.
+
+![Podaci i metodologija](docs/metodologija.png)
 
 ## Pokretanje
 
@@ -12,58 +52,41 @@ python -m pip install -r requirements.txt
 python -m streamlit run streamlit_app.py
 ```
 
-Izvorne datoteke nalaze se u direktorijima `data/dzs`, `data/hzz_zupanije`,
-`data/hzz_zanimanja`, `dozvole` i `stanovništvo`. Aplikacija koristi HZZ RSS XML,
-MUP Excel izvještaje te DZS CSV i Excel podatke. Učitavanje je predmemorirano
-Streamlitovim cacheom.
+Zatim otvorite adresu koju Streamlit prikaže u terminalu.
 
-Početna stranica **Zanimanja po regijama** stavlja usporedbu zanimanja u prvi
-plan. HZZ RSS izvadak ne sadrži povijesnu arhivu za usporedbu godina. Na stranici
-**Zanimanja i djelatnosti**
-pretraga obuhvaća i naziv oglasa; pojedinačni naslov, izvornu HZZ kategoriju i
-primijenjeno pravilo moguće je provjeriti u tablici oglasa.
+## Izvori podataka
 
-## Pokazatelji i dokumentacija
+Aplikacija radi nad lokalno spremljenim izvatcima:
 
-Stranica **Zanimanja po regijama** uspoređuje HZZ oglase po skupinama zanimanja
-među regijama, kao apsolutni broj, na 1.000 stanovnika ili na 1.000 stanovnika
-u dobi 15–64. Prikazuje se i demografski pregled udjela stanovništva 15–64 i
-65+ po regijama. MUP-ove izdane dozvole prikazuju se odvojeno kao dodatni
-kontekst; ne spajaju se s oglasima u zajednički indeks.
+- **HZZ RSS** – trenutno dostupni oglasi po županijama i skupinama zanimanja,
+- **MUP Excel izvještaji** – izdane dozvole za boravak i rad po djelatnostima,
+- **DZS podaci** – procjene stanovništva po dobnim skupinama te nacionalni
+  kontekst zaposlenosti i nezaposlenosti.
 
-Rezultati opisuju spremljene izvatke, ne nužno cijelo tržište rada. Oglasi nisu
-isto što i slobodna radna mjesta, ponovne objave s drugim identifikatorom mogu
-ostati zasebne, a pravila za razvrstavanje naslova nisu neovisno validirana.
-Udio oglasa bez pouzdane kategorije i druga ograničenja navedeni su u
-[PROJECT.md](PROJECT.md) i na stranici **Podaci i metodologija**.
+Datoteke se nalaze u mapama `data/`, `dozvole/` i `stanovništvo/`, a poveznice,
+datum preuzimanja i napomene o izvorima u [data/SOURCES.txt](data/SOURCES.txt).
 
-MUP objavljuje podatke za Zagrebačku policijsku upravu bez odvojenog iznosa za
-Grad Zagreb. Zbog toga se Grad Zagreb i Zagrebačka županija objedinjuju u
-regionalnoj analizi. Karta koristi približne točke središta regija.
+## Kako čitati rezultate
 
-DZS tablica zaposlenosti i nezaposlenosti dodaje nacionalni vremenski kontekst.
-Demografski nazivnik odnosi se na 2024., dok su oglasi noviji. Dobna skupina
-15–64 nije isto što i aktivna radna snaga.
-Metodologija, izvori i kvaliteta podataka dostupni su na stranici **Podaci i
-metodologija**. Tablice se mogu preuzeti u XLSX formatu.
+- HZZ oglas nije nužno jedno slobodno radno mjesto: može obuhvatiti više
+  radnika ili biti ponovno objavljen.
+- Broj oglasa na 1.000 stanovnika je opisni omjer objava, a ne broj slobodnih
+  radnih mjesta po radniku.
+- Dobna skupina 15–64 nije isto što i aktivna radna snaga; uključuje i učenike,
+  studente te druge osobe.
+- MUP-ova izdana dozvola nije dokaz da je osoba trenutačno zaposlena u Hrvatskoj.
+- Grad Zagreb i Zagrebačka županija spojeni su u regionalnim prikazima MUP-a
+  jer MUP za tu razinu objavljuje zajednički podatak.
 
-Detaljna projektna dokumentacija, metodologija, ograničenja, izvori i
-transparentna napomena o korištenju AI-ja nalaze se u
-[PROJECT.md](PROJECT.md). Poveznice i datum preuzimanja nalaze se u
-[data/SOURCES.txt](data/SOURCES.txt).
+Detaljna metodologija, kvaliteta podataka, ograničenja i transparentna napomena
+o korištenju AI-ja nalaze se u [PROJECT.md](PROJECT.md). Tablice se mogu
+preuzeti iz aplikacije u XLSX formatu.
 
-Projekt je strukturiran prema kriterijima javnog poziva: korištenje otvorenih
-podataka, relevantnost za gospodarstvo i upravljanje, korist za zajednicu,
-inovativna primjena tehnologije, izvedivost i integracijski potencijal te jasna
-prezentacija. Mapiranje kriterija nalazi se u [PROJECT.md](PROJECT.md).
-
-## Provjere
-
-Pokrenite testove obrade podataka i prikaza svih stranica:
+## Provjera
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-Detaljni opis projekta, metodologija, izvori i ograničenja navedeni su u
-[PROJECT.md](PROJECT.md).
+Trenutni testovi provjeravaju obradu podataka i renderiranje svih stranica
+aplikacije.
