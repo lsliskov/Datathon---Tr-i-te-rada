@@ -173,7 +173,6 @@ st.dataframe(
         "HZZ oglasi / 1.000 stanovnika": st.column_config.NumberColumn(format="%.2f"),
         "MUP dozvole": st.column_config.NumberColumn(format="%d"),
     },
-    alt="Pet regija s najvećim brojem HZZ oglasa",
 )
 download_table(leaders, "labourpulse-pregled-regija.xlsx")
 
@@ -186,7 +185,6 @@ if not data.national_labor.empty:
         st.line_chart(
             labor.set_index("Razdoblje")[["Nezaposleni", "Zaposleni"]],
             y_label="Osobe",
-            alt="Kretanje zaposlenih i nezaposlenih u nacionalnoj DZS seriji",
         )
         st.caption(
             "Serija prikazuje dostupne mjesečne vrijednosti iz DZS-ove tablice "

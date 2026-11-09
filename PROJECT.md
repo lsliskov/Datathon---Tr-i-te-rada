@@ -34,20 +34,37 @@ Projekt odgovara kategoriji **Gospodarstvo i učinkovito upravljanje** jer:
 
 ### Otvorene stavke za predaju
 
-- **Djelomično:** projekt koristi otvorene biblioteke, ali još nema licencu za
-  projektni kod.
-- **Nedostaje u prototipu:** napredna tehnologija poput AI-ja/IoT-a; sadašnja
-  klasifikacija temelji se na determinističkim pravilima.
-- **Djelomično:** integracijski potencijal i tehničke preduvjete dokumentiramo,
-  ali aplikacija nema API ni izravno povezivanje s javnim sustavima.
-- **Nedostaje kao priloženi materijal:** javni poziv traži trominutni video
-  prezentacije; izvorni kod sam po sebi ne dostavlja taj video.
-- **Dopuniti prije predaje:** zabilježiti izravnu DZS-poveznicu na regionalni
-  CSV i provjeriti jesu li nakon kolovoza 2026. objavljeni novi MUP izvještaji.
+- **Odabrati prije javne objave:** projektni kod nema licencu. Licence
+  korištenih biblioteka ne određuju licencu ovog projekta.
+- **Nije implementirano:** napredna tehnologija poput AI-ja/IoT-a; klasifikacija
+  oglasa temelji se na determinističkim pravilima.
+- **Nije implementirano:** aplikacija nema API ni izravno povezivanje s javnim
+  sustavima; integracijski potencijal i potrebni preduvjeti opisani su u
+  dokumentaciji.
+- **Pripremiti za prijavu:** javni poziv traži video-prezentaciju u trajanju od
+  tri minute.
+- **Provjera izvora 09.11.2026.:** katalog otvorenih podataka MUP-a sadrži 41
+  mjesečni izvještaj od travnja 2023. do kolovoza 2026.; kasniji izvještaji nisu
+  navedeni u katalogu. Ponovno provjeriti MUP i katalog neposredno prije predaje.
+- **DZS regionalna procjena:** identificirana je izravna PxWeb API tablica
+  SP22_2; zadnja dostupna godina je 2024. Novija procjena nije pronađena u toj
+  tablici.
+- **HZZ i DZS svježina:** HZZ RSS provjeren 09.11.2026. ima najnoviji datum
+  objave 06.11.2026. i isti sadržaj oglasa kao lokalni izvadak. DZS-ova
+  nacionalna radna knjiga jednaka je aktualnoj datoteci na izvoru te završava
+  rujnom 2026.
 
-Projekt ne tvrdi da jedan kompozitni broj sam po sebi dokazuje manjak radnika.
-Relativni regionalni pokazatelj služi kao početni alat za usporedbu, dok se
-zaključci čitaju zajedno s izvornim brojevima, stopama i kontekstom.
+U snapshotu HZZ-a nalazi se 5.920 oglasa; 5.373 (90,8 %) imaju prepoznatu
+kategoriju, dok 547 ostaje „Nerazvrstano”. Konzervativna pravila naslova
+povećala su udio razvrstanih oglasa s 84,7 % na 90,8 %. Prikaz zadržava izvorni
+naslov, izvornu kategoriju i izvor klasifikacije kako bi se rezultat mogao
+provjeriti. Ovaj udio opisuje spremljeni izvadak i mijenjat će se s novim
+HZZ podacima.
+
+Regionalni prikazi odvajaju HZZ oglase od MUP-ovih dozvola. Zanimanja se
+uspoređuju među regijama prema oglasima, a MUP-ove dozvole prikazuju se kao
+zaseban kontekst; projekt ne izračunava kompozitni indeks pritiska ili manjka
+radnika.
 
 ## Tehnička arhitektura i integracijski potencijal
 
@@ -70,9 +87,9 @@ zaključci čitaju zajedno s izvornim brojevima, stopama i kontekstom.
 ## Ključna pitanja
 
 1. U kojim se regijama trenutno objavljuje najviše HZZ oglasa?
-2. Koja su zanimanja najtraženija u Hrvatskoj i u pojedinoj regiji?
+2. Koja se zanimanja oglašavaju u Hrvatskoj i kako se njihov broj razlikuje po regijama?
 3. Koje djelatnosti imaju najviše izdanih MUP-ovih dozvola?
-4. Kako se regionalne vrijednosti razlikuju kada se prilagode broju stanovnika?
+4. Kako se broj HZZ oglasa po zanimanju i regiji mijenja kada se prikaže na 1.000 stanovnika?
 5. Kako se u dostupnoj DZS seriji kreću zaposlenost i nezaposlenost?
 
 ## Korišteni podaci
@@ -85,8 +102,8 @@ sastavni dio rezultata.
 |---|---|---|
 | HZZ RSS po županijama | oglasi po regionalnoj jedinici | [RSS katalog](http://burzarada.hzz.hr/rss/rsszup{broj}.xml) |
 | HZZ RSS po zanimanju | skupine zanimanja | [Katalog HZZ-a](https://data.gov.hr/ckan/dataset/slobodna-radna-mjesta-po-zanimanju) |
-| MUP | izdane dozvole i djelatnosti | [MUP statistika](https://mup.gov.hr/statistika/281716) |
-| DZS | stanovništvo po županijama | Lokalni CSV izvadak „Procjena stanovništva prema dobnim skupinama i spolu, po županijama, 31.12.”; zadnja godina 2024. [Katalog DZS-a](https://podaci.dzs.hr/) |
+| MUP | izdane dozvole i djelatnosti | [Skup podataka MUP-a na Portalu otvorenih podataka](https://data.gov.hr/ckan/dataset/statisticki-podaci-izdanih-dozvola-za-boravak-i-rad-u-travnju-2023-godine); 41 mjesečni izvještaj, travanj 2023. – kolovoz 2026. |
+| DZS | stanovništvo po županijama | Lokalni CSV izvadak „Procjena stanovništva prema dobnim skupinama i spolu, po županijama, 31.12.”; [izravna PxWeb API tablica SP22_2](https://web.dzs.hr/PXWeb/api/v1/hr/Stanovni%C5%A1tvo/Procjene%20stanovni%C5%A1tva/SP22_2.px); zadnja godina 2024. |
 | DZS | zaposlenost, nezaposlenost i aktivno stanovništvo | [Administrativni izvori, tablica 9.2.3.](https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx); privremeni podaci do rujna 2026. |
 
 Detaljan popis poveznica nalazi se u [`data/SOURCES.txt`](data/SOURCES.txt).
@@ -100,26 +117,26 @@ Detaljan popis poveznica nalazi se u [`data/SOURCES.txt`](data/SOURCES.txt).
 - **Stopa na 1.000 stanovnika** omogućuje usporedbu regija različite veličine.
   Broj stanovnika je nazivnik, odnosno vrijednost prema kojoj se broj oglasa
   ili dozvola preračunava.
-- **Min–max normalizacija** pretvara vrijednosti u zajednički raspon 0–100.
-- **Relativni pokazatelj** je prosjek normalizirane stope oglasa i normalizirane
-  stope dozvola. On služi za usporedbu prikazanih regija, a nije službena
-  stopa manjka radnika.
+- **HZZ oglasi na 1.000 stanovnika** prikazuju broj oglasa u odnosu na broj
+  stanovnika. To je omjer objava, ne broj slobodnih radnih mjesta po radniku.
 - **Kumulativna vrijednost** zbraja dozvole evidentirane od početka godine do
   datuma MUP-ova izvještaja.
 - **Snapshot** je lokalno spremljeni izvadak izvora u trenutku preuzimanja.
 
 ## Metodologija
 
-### Regionalni pokazatelj
+### Regionalna usporedba
 
-Za svaku usporedivu regionalnu jedinicu računaju se:
+HZZ oglasi se grupiraju prema regiji i prepoznatoj skupini zanimanja. Aplikacija
+prikazuje ili broj oglasa ili broj oglasa na 1.000 stanovnika. MUP-ove izdane
+dozvole i njihova stopa po stanovniku ostaju zasebni pokazatelji i ne ulaze u
+izračun HZZ vrijednosti. Nema kompozitnog indeksa koji miješa oglase i dozvole.
 
-- HZZ oglasi / stanovništvo × 1.000,
-- MUP-ove izdane dozvole / stanovništvo × 1.000.
-
-Obje stope se min–max normaliziraju na raspon 0–100 unutar prikazanih regija,
-a njihov aritmetički prosjek daje relativni pokazatelj. Pokazatelj je deskriptivan
-i ne predstavlja službenu stopu manjka radnika.
+Za izračun indeksa ponude i potražnje potrebni su vremenski i prostorno
+usporedivi podaci o slobodnim radnim mjestima i nezaposlenim osobama. Oglas
+može obuhvatiti više radnika ili biti ponovno objavljen, a dostupna DZS serija
+radne snage u ovom projektu nije regionalno usporediva s HZZ oglasima. Zato
+aplikacija takav indeks ne izračunava.
 
 ### Usporedba zanimanja i djelatnosti
 
@@ -128,6 +145,12 @@ nedostajuće ili nepotpune kategorije koristi se povezani HZZ RSS po zanimanju.
 Nepotpune oznake usklađuju se s potpunijim oznakama iz istog izvatka. Za
 nedvosmislene nazive „doktor/doktorica medicine” (ne veterinarske medicine) i
 „keramičar/keramičarka” primjenjuje se izričito pravilo normalizacije.
+Ako kategorija i dalje nedostaje, mali skup pravila naslova povezuje jasne
+nazive kuhar/konobar/čistač sa skupinom jednostavnih prodajnih i uslužnih
+zanimanja, instalaterska i električarska zanimanja s građevinskom skupinom,
+osobnog asistenta sa zdravstvom i socijalnom skrbi te izričita radna mjesta u
+proizvodnji s proizvodnom skupinom. Ta pravila ne pokušavaju zaključiti
+kvalifikaciju iz naziva; višeznačni ili općeniti nazivi ostaju nerazvrstani.
 Pojedinačni oglas prikazuje i izvorni naziv/kategoriju i primijenjenu kategoriju
 kako bi se ispravak mogao provjeriti. Oglasi bez pouzdane klasifikacije ostaju
 „Nerazvrstano”.
@@ -143,6 +166,8 @@ Korisnik može:
 - usporediti dvije regije,
 - pretražiti skupinu zanimanja ili pojedinačni naziv HZZ oglasa,
 - provjeriti izvor i primijenjeno pravilo kategorije za pojedinačni oglas,
+- odabrati skupine zanimanja i usporediti njihove HZZ oglase po regiji,
+  kao apsolutni broj ili na 1.000 stanovnika,
 - filtrirati MUP-ovu i nacionalnu DZS seriju po godini na sažetku,
 - odabrati broj zanimanja na grafikonu,
 - preuzeti prikazane tablice u XLSX formatu.
@@ -157,16 +182,22 @@ Korisnik može:
 - MUP-ove dozvole su izdane dozvole, a ne broj trenutačno zaposlenih stranih radnika.
 - MUP-ovi mjesečni izvještaji sadrže kumulativne vrijednosti do datuma izvještaja.
 - U priloženom izvatku ima 41 MUP izvještaj od travnja 2023. do kolovoza 2026.;
-  kasniji izvještaji nisu uključeni u ovu verziju.
+  kasniji izvještaji nisu uključeni u snapshot ove verzije; prije predaje
+  provjeriti službeni izvor za novije objave.
 - MUP ne daje istu regionalnu razinu za Grad Zagreb i Zagrebačku županiju, pa su spojeni.
 - HZZ zanimanja i MUP djelatnosti nisu izravno usporedive klasifikacije.
 - DZS procjena stanovništva za regionalne stope odnosi se na 2024. godinu.
-- Izravna poveznica na regionalni DZS CSV izvadak nije spremljena; za predaju
-  treba je pronaći u katalogu i dopuniti metapodatke.
+- Regionalni nazivnik u ovoj verziji koristi procjenu stanovništva za 2024.;
+  novija godina nije dostupna u DZS PxWeb tablici SP22_2 provjerenoj 09.11.2026.
+- U spremljenom HZZ izvatku 547 od 5.920 oglasa (9,2 %) nema pouzdano
+  prepoznatu kategoriju; njihova klasifikacija nije uključena u agregate
+  zanimanja, ali se oglasi mogu pregledati u tablici pojedinačnih oglasa.
 - DZS nacionalna serija aktivnog stanovništva je privremena; u izvatku obuhvaća
   listopad 2024. – rujan 2026. i nije regionalno usporediva s HZZ oglasima.
 - Dostupni izvori imaju različite datume i vremenske obuhvate.
-- Relativni pokazatelj ovisi o regijama uključenima u izračun i ekstremnim vrijednostima.
+- Oglas nije nužno jedno slobodno radno mjesto, a MUP-ova dozvola nije dokaz
+  trenutačnog zaposlenja. Dostupni regionalni podaci ne omogućuju izračun
+  usporedivog omjera slobodnih radnih mjesta i nezaposlenih osoba.
 - Aplikacija radi nad lokalnim snapshotima, nema automatsko osvježavanje niti
   jamči da su lokalne datoteke najnovije objave izvora.
 
@@ -180,13 +211,16 @@ službene statistike.
   izvještaje nakon njihove objave.
 - Nabaviti novije regionalne procjene stanovništva ili objasniti i ujednačiti
   vremenski obuhvat nazivnika u regionalnim stopama.
+- Prije eventualnog indeksa ponude i potražnje pronaći vremenski i prostorno
+  usporedive podatke o slobodnim radnim mjestima i nezaposlenima; MUP-ove
+  dozvole ostaviti zasebnim pokazateljem.
 - Proširiti nadzor kvalitete HZZ kategorija i provjeravati pravila normalizacije
   na uzorcima oglasa uz čuvanje izvornih podataka.
 - Uvesti automatizirane provjere formata, potpunosti, duplikata i promjena izvora.
 - Objaviti projekt pod odabranom otvorenom licencom te pripremiti dokumentirano
   strojno čitljivo sučelje za moguću integraciju.
-- Pripremiti obaveznu trominutnu video-prezentaciju problema, korisnika, izvora,
-  funkcionalnosti, arhitekture i koristi za zajednicu.
+- Pripremiti obaveznu video-prezentaciju u trajanju od tri minute o problemu,
+  korisnicima, izvorima, funkcionalnosti, arhitekturi i koristi za zajednicu.
 
 ## Transparentnost i AI
 

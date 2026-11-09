@@ -147,7 +147,6 @@ if not vacancy_records.empty:
         occupation_table,
         height=min(600, 38 + 35 * len(occupation_table)),
         hide_index=True,
-        alt="Oglasi po odabranoj regiji i skupini zanimanja",
     )
     download_table(
         occupation_table,
@@ -194,7 +193,6 @@ with st.expander("Provjerite pojedinačne oglase", icon=":material/search:"):
         column_config={
             "Datum objave": st.column_config.DateColumn(format="DD.MM.YYYY"),
         },
-        alt="Pojedinačni HZZ oglasi i njihove kategorije",
     )
     if len(listing_table) > 200:
         st.caption(

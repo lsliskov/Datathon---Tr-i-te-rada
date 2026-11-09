@@ -32,7 +32,6 @@ st.dataframe(
             display_text="Otvori izvor",
         )
     },
-    alt="Pregled izvora i kvalitete podataka",
 )
 download_table(data.quality, "labourpulse-kvaliteta-podataka.xlsx")
 
@@ -49,7 +48,8 @@ with st.container(border=True):
         **Zanimanja i djelatnosti** prikazuje HZZ kategorije, omogućuje pretragu
         pojedinačnih naziva oglasa i prikazuje djelatnosti s najviše MUP-ovih dozvola.
 
-        **Regionalna potražnja** koristi relativni pokazatelj za brzo rangiranje regija.
+        **Zanimanja po regijama** uspoređuje HZZ oglase po skupinama zanimanja
+        među regijama, kao broj oglasa ili oglase na 1.000 stanovnika.
         """
     )
 
@@ -64,9 +64,12 @@ st.markdown(
     - MUP podatke prikazuje po policijskoj upravi i djelatnosti.
     - DZS stanovništvo služi kao nazivnik za stope na 1.000 stanovnika.
     - DZS tablica zaposlenosti i nezaposlenosti daje nacionalnu vremensku seriju.
-    - Sve regionalne tablice sortirane su prema vrijednosti pokazatelja koji prikazuju.
+    - Regionalni prikaz zanimanja uključuje oglase s pouzdano prepoznatom
+      kategorijom; broj nerazvrstanih oglasa naveden je uz prikaz.
     - MUP djelatnosti i HZZ zanimanja ostaju odvojene klasifikacije, pa svaka zadržava
       svoje izvorno značenje.
+    - HZZ oglasi i MUP-ove dozvole prikazuju se zasebno; ne spajaju se u
+      kompozitni indeks pritiska.
     """
 )
 
@@ -95,8 +98,9 @@ st.markdown(
     - DZS podaci o radnoj snazi su nacionalni i privremeni, do razdoblja
       {data.national_labor['razdoblje'].iloc[-1] if not data.national_labor.empty else "nedostupno"};
       nisu regionalno usporedivi s HZZ oglasima.
-    - Relativni pokazatelj ovisi o regijama i ekstremnim vrijednostima u
-      promatranom skupu te nije službena stopa manjka radnika.
+    - DZS podaci o nezaposlenosti dostupni u ovom projektu samo su nacionalni,
+      pa nema usporedivih regionalnih podataka za omjer slobodnih radnih mjesta
+      i nezaposlenih. Aplikacija zato ne izračunava indeks ponude i potražnje.
     """
 )
 
