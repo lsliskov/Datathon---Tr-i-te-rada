@@ -1,7 +1,7 @@
 # LabourPulse RH
 
-Streamlit aplikacija za usporedni pregled HZZ oglasa, MUP-ovih dozvola i DZS-ova
-stanovništva po regijama.
+Streamlit aplikacija za razumljiv pregled potražnje za radnicima, regionalnih
+razlika i promjena u strukturi tržišta rada u Hrvatskoj.
 
 ## Pokretanje
 
@@ -10,26 +10,33 @@ python -m pip install -r requirements.txt
 python -m streamlit run streamlit_app.py
 ```
 
-Izvorne datoteke ostaju u direktorijima `poslovi po županijama`, `dozvole` i
-`stanovništvo`. Aplikacija koristi HZZ RSS XML, MUP Excel izvještaje te CSV
-procjene stanovništva. Čitanje podataka predmemorirano je tijekom sesije.
+Izvorne datoteke nalaze se u direktorijima `data/dzs`, `data/hzz_zupanije`,
+`data/hzz_zanimanja`, `dozvole` i `stanovništvo`. Aplikacija koristi HZZ RSS XML,
+MUP Excel izvještaje te DZS Excel i CSV podatke. Čitanje podataka predmemorirano
+je tijekom sesije.
 
-## Pokazatelj i ograničenja
+## Pokazatelji i dokumentacija
 
-Regionalni indeks pritiska jednak je prosjeku min–max normaliziranih stopa
-HZZ oglasa i MUP-ovih izdanih dozvola na 1.000 stanovnika. Riječ je o
-usporednom pokazatelju aplikacije, a ne službenoj statistici. HZZ broji oglase,
-ne broj radnih mjesta; MUP-ove dozvole nisu broj trenutačno zaposlenih stranih
-radnika. MUP-ova razrada po djelatnosti dostupna je samo za Hrvatsku ukupno.
-Skupine zanimanja HZZ-a i djelatnosti MUP-a prikazuju se odvojeno jer nemaju
-izravno usporedivu klasifikaciju.
+Regionalni pokazatelj potražnje računa HZZ oglase i MUP-ove izdane dozvole na
+1.000 stanovnika te svaku stopu min–max normalizacijom pretvara u raspon 0–100.
+Pokazatelj je prosjek dviju ocjena i služi za brzo uspoređivanje prikazanih regija.
+Stranice aplikacije zasebno prikazuju oglase, zanimanja, djelatnosti, dozvole i
+nacionalni DZS kontekst radne snage.
 
 MUP objavljuje podatke za Zagrebačku policijsku upravu bez odvojenog iznosa za
 Grad Zagreb. Zbog toga se Grad Zagreb i Zagrebačka županija objedinjuju u
-regionalnoj analizi i indeksu. Karta prikazuje približne točke središta regija,
-ne službene granice županija.
+regionalnoj analizi i pokazatelju. Karta koristi približne točke središta regija.
 
-Za indeks se koristi najnovija dostupna procjena ukupnog stanovništva iz DZS
-datoteke, a ne radno sposobno stanovništvo. MUP-ovi mjesečni izvještaji
-predstavljaju zbroj dozvola evidentiranih do datuma izvještaja; vrijednosti se
-početkom godine ponovno akumuliraju od početka godine.
+DZS tablica zaposlenosti i nezaposlenosti dodaje nacionalni vremenski kontekst.
+Metodologija, izvori i kvaliteta podataka dostupni su na stranici **Podaci i
+metodologija**. Tablice se mogu preuzeti u XLSX formatu.
+
+Detaljna projektna dokumentacija, metodologija, ograničenja, budući razvoj,
+izvori i transparentna napomena o korištenju AI-ja nalaze se u
+[PROJECT.md](PROJECT.md). Poveznice i datum preuzimanja nalaze se u
+[data/SOURCES.txt](data/SOURCES.txt).
+
+Projekt je strukturiran prema kriterijima javnog poziva: korištenje otvorenih
+podataka, relevantnost za gospodarstvo i upravljanje, korist za zajednicu,
+inovativna primjena tehnologije, izvedivost i integracijski potencijal te jasna
+prezentacija. Mapiranje kriterija nalazi se u [PROJECT.md](PROJECT.md).

@@ -1,0 +1,33 @@
+Datum preuzimanja: 09.11.2026.
+Napomena: izvori se mogu mijenjati nakon ovog datuma. Za reproduciranje
+preuzmite ih ponovno s navedenih poveznica i zabilježite novi datum.
+
+DZS:
+- zaposlenost-aktivno-stanovnistvo.xlsx
+  https://podaci.dzs.hr/media/yjvbaa2n/zaposlenost-aktivno-stanovnistvo.xlsx
+- zaposlenost-administrativni-izvori.xlsx
+  https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx
+- place.xlsx
+  https://podaci.dzs.hr/media/yegdgb5v/place.xlsx
+- procjene-stanovnistva.xlsx
+  https://podaci.dzs.hr/media/vb1ae2vm/procjene-stanovnistva.xlsx
+- DZS katalog i opis skupova:
+  https://data.gov.hr/ckan/dataset/statistika-u-nizu-zaposlenost-i-pla-e
+- DZS plaće:
+  https://podaci.dzs.hr/media/yegdgb5v/place.xlsx
+
+HZZ:
+- data/hzz_zupanije/rsszup1.xml ... rsszup21.xml
+  http://burzarada.hzz.hr/rss/rsszup{broj}.xml
+- data/hzz_zanimanja/rsskat1001.xml ... rsskat1024.xml
+  http://burzarada.hzz.hr/rss/rsskat{kategorija}.xml
+- HZZ katalog:
+  https://data.gov.hr/ckan/dataset/slobodna-radna-mjesta-po-zanimanju
+
+MUP:
+- Izvještaji o izdanim dozvolama:
+  https://mup.gov.hr/statistika/281716
+
+Napomena: HZZ RSS datoteke predstavljaju trenutno dostupne oglase, a ne
+nužno broj stvarnih slobodnih radnih mjesta. DZS skupovi imaju vlastite
+vremenske obuhvate; prije izračuna pokazatelja treba uskladiti razdoblja.

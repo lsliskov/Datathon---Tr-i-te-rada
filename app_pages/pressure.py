@@ -2,24 +2,34 @@ import plotly.express as px
 import streamlit as st
 
 from utils.data import format_number
-from utils.ui import get_dashboard_data
+from utils.ui import RELATIVE_SCALE, download_table, get_dashboard_data
 
 data = get_dashboard_data()
 
-st.title("Indeks pritiska na tržište rada")
+st.title("Regionalna potražnja i intenzitet dozvola", anchor=False)
 st.caption(
-    "Kompozitni, relativni pokazatelj izrađen za ovu aplikaciju; nije službeni HZZ/MUP indeks."
+    "Relativni pokazatelj uspoređuje regionalnu vidljivost HZZ oglasa i izdanih "
+    "MUP-ovih dozvola po 1.000 stanovnika."
+)
+st.caption(
+    f"HZZ objave do {data.hzz_date:%d.%m.%Y} · MUP izvještaj {data.permit_date:%d.%m.%Y} · "
+    f"stanovništvo {data.population_year} · podaci preuzeti 09.11.2026."
+)
+st.write(
+    "Pokazatelj daje brz pregled regija s najizraženijom kombinacijom oglasa i "
+    "izdanih dozvola. Za detaljnije objašnjenje potražnje koristite stranice "
+    "Regionalna analiza i Zanimanja i djelatnosti."
 )
 
-chart_data = data.regional.sort_values("indeks_pritiska")
+chart_data = data.regional.sort_values("indeks_pritiska", ascending=True)
 fig = px.bar(
     chart_data,
     x="indeks_pritiska",
     y="regija",
     orientation="h",
     color="indeks_pritiska",
-    color_continuous_scale="YlOrRd",
-    labels={"indeks_pritiska": "Indeks (0–100)", "regija": ""},
+    color_continuous_scale=RELATIVE_SCALE,
+    labels={"indeks_pritiska": "Relativni pokazatelj (0–100)", "regija": ""},
     hover_data={
         "oglasi_na_1000": ":.2f",
         "dozvole_na_1000": ":.2f",
@@ -28,9 +38,13 @@ fig = px.bar(
     },
 )
 fig.update_layout(height=650, coloraxis_showscale=False, yaxis={"automargin": True})
-st.plotly_chart(fig, width="stretch")
+st.plotly_chart(
+    fig,
+    width="stretch",
+    config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
+)
 
-table = data.regional.loc[
+table = data.regional.sort_values("indeks_pritiska", ascending=False).loc[
     :,
     [
         "regija",
@@ -44,7 +58,7 @@ table = data.regional.loc[
 ].rename(
     columns={
         "regija": "Regija",
-        "indeks_pritiska": "Indeks (0–100)",
+        "indeks_pritiska": "Pokazatelj (0–100)",
         "hzz_oglasi": "HZZ oglasi",
         "mup_dozvole": "MUP dozvole",
         "stanovnici": "Stanovnici",
@@ -56,39 +70,28 @@ st.dataframe(
     table,
     hide_index=True,
     column_config={
-        "Indeks (0–100)": st.column_config.NumberColumn(format="%.1f"),
+        "Pokazatelj (0–100)": st.column_config.NumberColumn(format="%.1f"),
         "Stanovnici": st.column_config.NumberColumn(format="%d"),
+        "HZZ oglasi": st.column_config.NumberColumn(format="%d"),
+        "MUP dozvole": st.column_config.NumberColumn(format="%d"),
         "Oglasi / 1.000 stanovnika": st.column_config.NumberColumn(format="%.2f"),
         "Dozvole / 1.000 stanovnika": st.column_config.NumberColumn(format="%.2f"),
     },
+    alt="Regionalni pokazatelj oglasa i izdanih dozvola",
 )
-st.download_button(
-    "Preuzmi regionalne pokazatelje (CSV)",
-    data=table.to_csv(index=False).encode("utf-8-sig"),
-    file_name="labourpulse-regionalni-pokazatelji.csv",
-    mime="text/csv",
-    icon=":material/download:",
-)
+download_table(table, "labourpulse-pokazatelji.xlsx")
 
-with st.expander("Metodologija i ograničenja"):
+with st.expander("Kako nastaje pokazatelj", icon=":material/functions:"):
     st.markdown(
         """
-        **Ulazne stope**
+        - HZZ oglasi / stanovništvo × 1.000.
+        - MUP-ove dozvole evidentirane do datuma izvještaja / stanovništvo × 1.000.
+        - Svaka stopa preslikava se na raspon 0–100 među prikazanim regijama.
+        - Pokazatelj je aritmetička sredina dviju ocjena.
 
-        - HZZ oglasi u lokalnim XML izvacima / stanovništvo × 1.000.
-        - MUP-ove dozvole evidentirane do datuma posljednjeg izvještaja / stanovništvo × 1.000.
-        - Stanovništvo je najnovija dostupna godišnja procjena DZS-a.
-
-        Svaka se stopa zasebno preslikava na raspon 0–100 među prikazanim regijama
-        min–max normalizacijom. Indeks je aritmetička sredina tih dviju ocjena.
-        Vrijednost zato opisuje relativni položaj u ovom uzorku, a ne vjerojatnost
-        manjka radnika. Na rang utječu vremenski obuhvat izvora i ekstremne vrijednosti.
-
-        HZZ broji oglase, ne pojedinačna slobodna radna mjesta. MUP broji izdane
-        dozvole do datuma izvještaja, ne trenutačno zaposlene strane radnike.
-        Zagrebačka županija i Grad Zagreb spojeni su jer MUP objavljuje zajedničku
-        policijsku upravu. Djelatnosti MUP-a dostupne su samo na nacionalnoj razini
-        i ne ulaze zasebno u regionalni indeks.
+        Viša vrijednost znači višu relativnu vrijednost kombiniranih stopa u prikazanom skupu.
+        Zagrebačka županija i Grad Zagreb prikazani su zajedno prema obuhvatu MUP-ove
+        policijske uprave.
         """
     )
     st.caption(

@@ -42,6 +42,18 @@ COUNTIES = (
 )
 
 ZAGREB_REGION = "Zagrebačka županija + Grad Zagreb"
+DATA_DOWNLOAD_DATE = "09.11.2026."
+
+SOURCE_LINKS = {
+    "HZZ oglasi po županijama": "http://burzarada.hzz.hr/rss/rsszup{broj}.xml",
+    "HZZ oglasi po zanimanju": "http://burzarada.hzz.hr/rss/rsskat{kategorija}.xml",
+    "DZS zaposlenost i aktivno stanovništvo": (
+        "https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx"
+    ),
+    "DZS procjene stanovništva": (
+        "https://podaci.dzs.hr/media/vb1ae2vm/procjene-stanovnistva.xlsx"
+    ),
+}
 
 HZZ_FEED_REGIONS = {
     1: "Bjelovarsko-bilogorska županija",
@@ -101,6 +113,8 @@ class DashboardData:
     population_year: int
     hzz_date: date | None
     source_files: tuple[str, ...]
+    national_labor: pd.DataFrame
+    quality: pd.DataFrame
 
 
 def _ascii_key(value: Any) -> str:
@@ -220,6 +234,25 @@ def calculate_pressure_index(regional: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def find_similar_regions(
+    regional: pd.DataFrame,
+    selected_region: str,
+    limit: int = 3,
+) -> pd.DataFrame:
+    features = ["oglasi_na_1000", "dozvole_na_1000", "indeks_pritiska"]
+    source = regional.set_index("regija")[features].astype(float)
+    if selected_region not in source.index:
+        raise ValueError(f"Nepoznata regija: {selected_region}")
+    scales = source.std().replace(0, 1).fillna(1)
+    distances = ((source - source.loc[selected_region]) / scales).pow(2).sum(axis=1).pow(0.5)
+    result = regional.copy()
+    result["slicnost_udaljenost"] = result["regija"].map(distances)
+    result = result.loc[result["regija"] != selected_region]
+    return result.sort_values("slicnost_udaljenost").head(limit).drop(
+        columns="slicnost_udaljenost"
+    )
+
+
 def _read_population(path: Path) -> tuple[dict[str, int], int]:
     try:
         text = path.read_text(encoding="utf-8-sig")
@@ -280,6 +313,45 @@ def _number(value: Any) -> float | None:
         return float(text)
     except ValueError:
         return None
+
+
+def _read_national_labor(path: Path) -> pd.DataFrame:
+    sheet = pd.read_excel(
+        path,
+        sheet_name="9.2.1.",
+        header=None,
+        engine="openpyxl",
+    )
+    if sheet.shape[0] < 13:
+        raise ValueError(f"Nedostaje tablica radne snage u {path.name}")
+
+    labels = {
+        "Aktivno stanovništvo": "Aktivno stanovništvo",
+        "Ukupno zaposleni": "Zaposleni",
+        "Nezaposleni3)": "Nezaposleni",
+        "Stopa registrirane nezaposlenosti4), %": "Stopa registrirane nezaposlenosti",
+    }
+    header_row = sheet.iloc[5]
+    records: list[dict[str, Any]] = []
+    for column in range(2, sheet.shape[1]):
+        header = str(header_row.iloc[column]).strip()
+        match = re.search(r"(?:(\w+)\.\s*)?(\d{4})\.", header)
+        if not match or "žene" in _ascii_key(header) or "women" in _ascii_key(header):
+            continue
+        period = header.replace("ukupno Total", "").strip()
+        values: dict[str, float] = {}
+        for row_index, label in enumerate(sheet.iloc[:, 0]):
+            key = str(label).strip()
+            if key in labels:
+                number = _number(sheet.iat[row_index, column])
+                if number is not None:
+                    values[labels[key]] = number
+        if values:
+            records.append({"razdoblje": period, **values})
+    result = pd.DataFrame(records)
+    if result.empty:
+        raise ValueError(f"Nisu pronađeni podaci o radnoj snazi u {path.name}")
+    return result.tail(24).reset_index(drop=True)
 
 
 def _plain_description(value: str) -> str:
@@ -502,10 +574,16 @@ def _combine_values(values: dict[str, int]) -> dict[str, int]:
 
 
 def build_dashboard_data(data_root: Path) -> DashboardData:
+    data_dir = data_root / "data"
     population_dir = data_root / "stanovništvo"
     permit_dir = data_root / "dozvole"
-    hzz_dir = data_root / "poslovi po županijama"
-    occupation_dir = data_root / "poslovi po zanimanju"
+    hzz_dir = data_dir / "hzz_zupanije"
+    occupation_dir = data_dir / "hzz_zanimanja"
+    if not hzz_dir.is_dir():
+        hzz_dir = data_root / "poslovi po županijama"
+    if not occupation_dir.is_dir():
+        occupation_dir = data_root / "poslovi po zanimanju"
+    dzs_labor_path = data_dir / "dzs" / "zaposlenost-administrativni-izvori.xlsx"
     population_files = sorted(population_dir.glob("DE_SP22*.csv"))
     permit_files = sorted(permit_dir.glob("*.xlsx"))
     if not population_files:
@@ -572,6 +650,49 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         ]
     ).sort_values("datum")
     history["godina"] = history["godina"].astype(str)
+    if dzs_labor_path.exists():
+        national_labor = _read_national_labor(dzs_labor_path)
+    else:
+        national_labor = pd.DataFrame(
+            columns=[
+                "razdoblje",
+                "Aktivno stanovništvo",
+                "Zaposleni",
+                "Nezaposleni",
+                "Stopa registrirane nezaposlenosti",
+            ]
+        )
+    quality = pd.DataFrame(
+        [
+            {
+                "Izvor": "HZZ",
+                "Što prikazuje": "Trenutno dostupne oglase po županiji i zanimanju",
+                "Granularnost": "Županija, zanimanje, oglas",
+                "Razdoblje": hzz_date.strftime("%d.%m.%Y") if hzz_date else "Prema objavi oglasa",
+                "Preuzeto": DATA_DOWNLOAD_DATE,
+                "Status": "Uključeno",
+                "Ponovno preuzimanje": SOURCE_LINKS["HZZ oglasi po županijama"],
+            },
+            {
+                "Izvor": "MUP",
+                "Što prikazuje": "Izdane dozvole za boravak i rad",
+                "Granularnost": "Policijska uprava, djelatnost, izvještaj",
+                "Razdoblje": latest["date"].strftime("%d.%m.%Y"),
+                "Preuzeto": DATA_DOWNLOAD_DATE,
+                "Status": "Uključeno",
+                "Ponovno preuzimanje": "https://mup.gov.hr/statistika/281716",
+            },
+            {
+                "Izvor": "DZS",
+                "Što prikazuje": "Stanovništvo i nacionalni kontekst radne snage",
+                "Granularnost": "Regija ili Hrvatska, prema tablici",
+                "Razdoblje": str(population_year),
+                "Preuzeto": DATA_DOWNLOAD_DATE,
+                "Status": "Uključeno",
+                "Ponovno preuzimanje": SOURCE_LINKS["DZS procjene stanovništva"],
+            },
+        ]
+    )
     return DashboardData(
         regional=regional,
         occupations=occupation_counts,
@@ -585,6 +706,8 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
             latest["file"],
             f"{len(list(hzz_dir.glob('rsszup*.xml')))} HZZ XML datoteka",
         ),
+        national_labor=national_labor,
+        quality=quality,
     )
 
 

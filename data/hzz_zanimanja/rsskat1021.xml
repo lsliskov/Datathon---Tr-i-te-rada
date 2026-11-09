@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-2"?>
+<rss version="2.0">
+<channel>
+
+  <title>Hrvatski zavod za zapošljavanje</title> 
+  <description>Pregled slobodnih radnih mjesta</description> 
+  <link>http://burzarada.hzz.hr</link> 
+  <language>hr</language> 
+  <ttl>60</ttl>
+  <copyright>Copyright 2010, Hrvatski zavod za zapošljavanje, burzarada.hzz.hr</copyright> 
+  <webMaster>info@hzz.hr</webMaster> 
+  <managingEditor>info@hzz.hr</managingEditor> 
+  <image>
+	<title></title> 
+	<width></width> 
+	<height></height> 
+	<url></url> 
+	<link></link> 
+  </image>
+
+<item>
+<title />
+<subject />
+<pubDate>02.02.2024</pubDate>
+<description>Opis posla: Vožnja PUTNIČKOG KOMBI VOZILA (8+1). Obavljanje taksi djelatnosti putem aplikacija Uber i Bolt. Djelatnost se također obavlja i sa taksi stajališta; u Dubrovačkoj luci za brodove na kružnim putovanjima (za ulazak je potrebna posebna dozvola/koncesija koju posjedujem) i ostalim., Kategorija: VOZAČI MOTORNIH VOZILA, POKRETNIH STROJEVA I BRODSKA POSADA, Rok za prijavu: 17.02.2024, Mjesto rada: DUBROVNIK, Općina: DUBROVNIK, Županija: DUBROVAČKO-NERETVANSKA</description>
+<link>http://burzarada.hzz.hr/RadnoMjesto_Ispis.aspx?WebSifra=140357528</link>
+<guid>http://burzarada.hzz.hr/RadnoMjesto_Ispis.aspx?WebSifra=140357528</guid>
+</item>
+</channel></rss>

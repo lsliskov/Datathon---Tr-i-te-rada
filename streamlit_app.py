@@ -26,8 +26,13 @@ page = st.navigation(
         ),
         st.Page(
             "app_pages/pressure.py",
-            title="Indeks pritiska",
+            title="Regionalna potražnja",
             icon=":material/query_stats:",
+        ),
+        st.Page(
+            "app_pages/methodology.py",
+            title="Podaci i metodologija",
+            icon=":material/menu_book:",
         ),
     ],
     position="sidebar",
