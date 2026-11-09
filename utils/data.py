@@ -50,7 +50,10 @@ SOURCE_LINKS = {
     "DZS zaposlenost i aktivno stanovništvo": (
         "https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx"
     ),
-    "DZS procjene stanovništva": "https://podaci.dzs.hr/",
+    "DZS procjene stanovništva": (
+        "https://web.dzs.hr/PXWeb/api/v1/hr/"
+        "Stanovni%C5%A1tvo/Procjene%20stanovni%C5%A1tva/SP22_2.px"
+    ),
 }
 
 HZZ_FEED_REGIONS = {
@@ -202,7 +205,7 @@ def _report_date_from_filename(path: Path) -> date | None:
     return date(year, month, calendar.monthrange(year, month)[1])
 
 
-def calculate_pressure_index(regional: pd.DataFrame) -> pd.DataFrame:
+def calculate_regional_rates(regional: pd.DataFrame) -> pd.DataFrame:
     result = regional.copy()
     result["oglasi_na_1000"] = (
         result["hzz_oglasi"] / result["stanovnici"] * 1000
@@ -210,46 +213,7 @@ def calculate_pressure_index(regional: pd.DataFrame) -> pd.DataFrame:
     result["dozvole_na_1000"] = (
         result["mup_dozvole"] / result["stanovnici"] * 1000
     )
-
-    for source, target in (
-        ("oglasi_na_1000", "ocjena_potraznje"),
-        ("dozvole_na_1000", "ocjena_dozvola"),
-    ):
-        values = result[source]
-        minimum = values.min()
-        maximum = values.max()
-        if pd.isna(minimum) or pd.isna(maximum):
-            result[target] = float("nan")
-        elif maximum == minimum:
-            result[target] = 50.0
-        else:
-            result[target] = (values - minimum) / (maximum - minimum) * 100
-
-    result["indeks_pritiska"] = result[
-        ["ocjena_potraznje", "ocjena_dozvola"]
-    ].mean(axis=1)
-    return result.sort_values("indeks_pritiska", ascending=False).reset_index(
-        drop=True
-    )
-
-
-def find_similar_regions(
-    regional: pd.DataFrame,
-    selected_region: str,
-    limit: int = 3,
-) -> pd.DataFrame:
-    features = ["oglasi_na_1000", "dozvole_na_1000", "indeks_pritiska"]
-    source = regional.set_index("regija")[features].astype(float)
-    if selected_region not in source.index:
-        raise ValueError(f"Nepoznata regija: {selected_region}")
-    scales = source.std().replace(0, 1).fillna(1)
-    distances = ((source - source.loc[selected_region]) / scales).pow(2).sum(axis=1).pow(0.5)
-    result = regional.copy()
-    result["slicnost_udaljenost"] = result["regija"].map(distances)
-    result = result.loc[result["regija"] != selected_region]
-    return result.sort_values("slicnost_udaljenost").head(limit).drop(
-        columns="slicnost_udaljenost"
-    )
+    return result.reset_index(drop=True)
 
 
 def _read_population(path: Path) -> tuple[dict[str, int], int]:
@@ -452,6 +416,35 @@ def _title_occupation_override(title: str) -> str | None:
     return None
 
 
+def _title_occupation_fallback(title: str) -> str | None:
+    key = _ascii_key(title)
+    matches = [
+        category
+        for pattern, category in (
+            (
+                r"\b(?:kuhar|konobar|barmen|sanker|cistac|spremac|sobar)\b",
+                "JEDNOSTAVNA PRODAJNA I USLUŽNA ZANIMANJA",
+            ),
+            (
+                r"\b(?:elektricar|elektroinstalater|elektromonter|"
+                r"vodoinstalater|keramicar)\b|monter solarnih panela",
+                "GRAĐEVINARI, ARHITEKTI, GEODETE",
+            ),
+            (
+                r"\bosobni asistent\b",
+                "ZDRAVSTVO, SOCIJALNA SKRB, NJEGA",
+            ),
+            (
+                r"\b(?:radnik|radnica|operater|operaterka)\b.*"
+                r"\bproizvodn\w*",
+                "JEDNOSTAVNA GRAĐEVINSKA, PROIZVODNA I TRANSPORTNA ZANIMANJA",
+            ),
+        )
+        if re.search(pattern, key)
+    ]
+    return matches[0] if len(set(matches)) == 1 else None
+
+
 def _read_hzz(
     path: Path, occupation_path: Path
 ) -> tuple[pd.DataFrame, date | None]:
@@ -542,6 +535,11 @@ def _read_hzz(
             if title_override and title_override != occupation:
                 occupation = title_override
                 category_source = "Pravilo iz naziva oglasa"
+            elif occupation == "Nerazvrstano":
+                title_fallback = _title_occupation_fallback(title)
+                if title_fallback:
+                    occupation = title_fallback
+                    category_source = "Pravilo iz naziva oglasa"
             records.append(
                 {
                     "regija": region,
@@ -708,7 +706,7 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         )
     regional["stanovnici"] = regional["stanovnici"].astype(int)
     regional["mup_dozvole"] = regional["mup_dozvole"].astype(int)
-    regional = calculate_pressure_index(regional)
+    regional = calculate_regional_rates(regional)
 
     occupation_counts = (
         vacancies.groupby(["regija", "zanimanje"], as_index=False)
@@ -751,7 +749,10 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
                 "Razdoblje": latest["date"].strftime("%d.%m.%Y"),
                 "Preuzeto": DATA_DOWNLOAD_DATE,
                 "Status": "Uključeno",
-                "Ponovno preuzimanje": "https://mup.gov.hr/statistika/281716",
+                "Ponovno preuzimanje": (
+                    "https://data.gov.hr/ckan/dataset/"
+                    "statisticki-podaci-izdanih-dozvola-za-boravak-i-rad-u-travnju-2023-godine"
+                ),
             },
             {
                 "Izvor": "DZS",
