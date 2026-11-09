@@ -46,7 +46,11 @@ with st.sidebar:
     )
     measure = st.selectbox(
         "Prikaz",
-        ["Broj HZZ oglasa", "HZZ oglasi na 1.000 stanovnika"],
+        [
+            "Broj HZZ oglasa",
+            "HZZ oglasi na 1.000 stanovnika",
+            "HZZ oglasi na 1.000 stanovnika 15–64",
+        ],
         help="Stopa po stanovniku služi za usporedbu regija različite veličine; ne predstavlja broj slobodnih radnih mjesta.",
     )
 
@@ -57,12 +61,17 @@ st.caption(
 )
 st.caption(
     f"HZZ oglasi dostupni do {data.hzz_date:%d.%m.%Y} · "
-    f"stanovništvo za izračun stope: {data.population_year}."
+    f"demografski nazivnik: {data.demographic_year}."
 )
 st.info(
     "Broj HZZ oglasa nije isto što i broj slobodnih radnih mjesta: jedan oglas "
     "može obuhvatiti više radnika, a oglas može biti ponovno objavljen. "
     "Ova usporedba opisuje oglase u spremljenom izvatku."
+)
+st.caption(
+    f"Stopa oglasa na 1.000 stanovnika 15–64 koristi demografski podatak za "
+    f"{data.demographic_year}. Dobna skupina 15–64 nije isto što i broj aktivnih "
+    "radnika ili radne snage."
 )
 
 if not selected_categories:
@@ -82,10 +91,18 @@ else:
         )
         .reindex(index=data.regional["regija"], columns=selected_categories, fill_value=0)
     )
-    if measure == "HZZ oglasi na 1.000 stanovnika":
-        population = data.regional.set_index("regija")["stanovnici"]
+    if measure in {
+        "HZZ oglasi na 1.000 stanovnika",
+        "HZZ oglasi na 1.000 stanovnika 15–64",
+    }:
+        denominator = (
+            "stanovnici_15_64"
+            if measure.endswith("15–64")
+            else "stanovnici"
+        )
+        population = data.regional.set_index("regija")[denominator]
         matrix = matrix.div(population.reindex(matrix.index), axis=0).mul(1000)
-        colorbar_title = "Oglasi / 1.000 stanovnika"
+        colorbar_title = measure
         text_format = ".2f"
     else:
         colorbar_title = "Broj oglasa"

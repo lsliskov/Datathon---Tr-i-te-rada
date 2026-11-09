@@ -98,23 +98,63 @@ with right:
             help="Broj trenutno dostupnih HZZ oglasa u odnosu na procijenjeni broj stanovnika. Oglas nije nužno jedno slobodno radno mjesto.",
         )
         st.metric(
-            "MUP izdane dozvole",
-            format_number(selected["mup_dozvole"]),
-            help="Kumulativan broj dozvola u MUP-ovu izvještaju; ne predstavlja broj trenutačno zaposlenih stranih radnika.",
+            "HZZ oglasi / 1.000 stanovnika 15–64",
+            f"{selected['oglasi_na_1000_15_64']:.2f}",
+            help=f"Demografski nazivnik iz {data.demographic_year}; dobna skupina 15–64 nije isto što i aktivna radna snaga.",
         )
+    st.caption(
+        f"Demografski podaci odnose se na {data.demographic_year}, dok su oglasi "
+        f"dostupni do {data.hzz_date:%d.%m.%Y}. Dob 15–64 nije isto što i aktivna radna snaga."
+    )
+
+with st.expander("Dodatni kontekst: MUP-ove izdane dozvole", icon=":material/info:"):
     st.write(
-        f"MUP-ove dozvole na 1.000 stanovnika: **{selected['dozvole_na_1000']:.2f}**."
+        "MUP-ove dozvole prikazane su odvojeno od oglasa. One predstavljaju "
+        "izdane dozvole, a ne broj stranih radnika koji su trenutačno zaposleni."
+    )
+    st.metric("Izdane dozvole u izvještaju", format_number(selected["mup_dozvole"]))
+    st.write(
+        f"Izdane dozvole na 1.000 stanovnika: **{selected['dozvole_na_1000']:.2f}**."
     )
     st.caption(
-        "MUP-ova stopa je zaseban kontekst i nije zbrojena s HZZ oglasima. "
-        "Grad Zagreb i Zagrebačka županija spojeni su jer MUP objavljuje "
-        "zajednički podatak za to područje."
+        "Grad Zagreb i Zagrebačka županija spojeni su jer MUP objavljuje zajednički "
+        "podatak za to područje."
     )
+
+st.subheader("Demografski pregled regija")
+st.caption(
+    f"Udio stanovništva u dobi 15–64 i 65+ prema DZS procjeni za "
+    f"{data.demographic_year}. Dobne skupine opisuju stanovništvo, a ne aktivnu radnu snagu."
+)
+demography = data.regional.sort_values("udio_15_64", ascending=False).loc[
+    :,
+    ["regija", "udio_15_64", "udio_65_plus", "stanovnici_15_64", "stanovnici_65_plus"],
+].rename(
+    columns={
+        "regija": "Regija",
+        "udio_15_64": "Udio 15–64 (%)",
+        "udio_65_plus": "Udio 65+ (%)",
+        "stanovnici_15_64": "Stanovnici 15–64",
+        "stanovnici_65_plus": "Stanovnici 65+",
+    }
+)
+st.dataframe(
+    demography,
+    hide_index=True,
+    column_config={
+        "Udio 15–64 (%)": st.column_config.NumberColumn(format="%.1f"),
+        "Udio 65+ (%)": st.column_config.NumberColumn(format="%.1f"),
+        "Stanovnici 15–64": st.column_config.NumberColumn(format="%d"),
+        "Stanovnici 65+": st.column_config.NumberColumn(format="%d"),
+    },
+)
+download_table(demography, "labourpulse-demografija-regija.xlsx")
 
 st.subheader("Usporedite dvije regije")
 st.caption(
-    "HZZ oglasi i MUP-ove dozvole uspoređuju se odvojeno. Oglas nije isto što i "
-    "jedno slobodno radno mjesto, a dozvola ne znači da je osoba i dalje zaposlena."
+    "Usporedba zanimanja i oglasa je u prvom planu. MUP-ove dozvole ostaju dodatni "
+    "kontekst: oglas nije isto što i jedno slobodno radno mjesto, a dozvola ne znači "
+    "da je osoba i dalje zaposlena."
 )
 comparison_regions = data.regional.set_index("regija").loc[
     [first_region, second_region]
@@ -142,8 +182,9 @@ regional_table = data.regional.sort_values("hzz_oglasi", ascending=False).loc[
         "regija",
         "hzz_oglasi",
         "oglasi_na_1000",
-        "mup_dozvole",
-        "dozvole_na_1000",
+        "oglasi_na_1000_15_64",
+        "udio_15_64",
+        "udio_65_plus",
         "stanovnici",
     ],
 ].rename(
@@ -151,8 +192,9 @@ regional_table = data.regional.sort_values("hzz_oglasi", ascending=False).loc[
         "regija": "Regija",
         "hzz_oglasi": "HZZ oglasi",
         "oglasi_na_1000": "Oglasi / 1.000 stanovnika",
-        "mup_dozvole": "MUP dozvole",
-        "dozvole_na_1000": "Dozvole / 1.000 stanovnika",
+        "oglasi_na_1000_15_64": "Oglasi / 1.000 stanovnika 15–64",
+        "udio_15_64": "Udio 15–64 (%)",
+        "udio_65_plus": "Udio 65+ (%)",
         "stanovnici": "Stanovnici",
     }
 )
@@ -166,10 +208,11 @@ st.dataframe(
     hide_index=True,
     column_config={
         "HZZ oglasi": st.column_config.NumberColumn(format="%d"),
-        "MUP dozvole": st.column_config.NumberColumn(format="%d"),
         "Stanovnici": st.column_config.NumberColumn(format="%d"),
         "Oglasi / 1.000 stanovnika": st.column_config.NumberColumn(format="%.2f"),
-        "Dozvole / 1.000 stanovnika": st.column_config.NumberColumn(format="%.2f"),
+        "Oglasi / 1.000 stanovnika 15–64": st.column_config.NumberColumn(format="%.2f"),
+        "Udio 15–64 (%)": st.column_config.NumberColumn(format="%.1f"),
+        "Udio 65+ (%)": st.column_config.NumberColumn(format="%.1f"),
     },
 )
 download_table(regional_table, "labourpulse-regionalni-podaci.xlsx")

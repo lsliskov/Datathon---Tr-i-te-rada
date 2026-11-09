@@ -113,6 +113,7 @@ class DashboardData:
     history: pd.DataFrame
     permit_date: date
     population_year: int
+    demographic_year: int
     hzz_date: date | None
     source_files: tuple[str, ...]
     national_labor: pd.DataFrame
@@ -216,7 +217,9 @@ def calculate_regional_rates(regional: pd.DataFrame) -> pd.DataFrame:
     return result.reset_index(drop=True)
 
 
-def _read_population(path: Path) -> tuple[dict[str, int], int]:
+def _read_population(
+    path: Path,
+) -> tuple[dict[str, int], dict[str, dict[str, int]], int]:
     try:
         text = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError:
@@ -237,6 +240,9 @@ def _read_population(path: Path) -> tuple[dict[str, int], int]:
         raise ValueError(f"Nije pronađen ukupni red stanovništva: {path.name}")
 
     population: dict[str, int] = {}
+    age_groups: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"15_64": 0, "65_plus": 0}
+    )
     years: list[int] = []
     for index, heading in enumerate(headers):
         match = re.fullmatch(r"\s*(20\d{2})\s+(.+?)\s+Svega\s*", heading)
@@ -260,7 +266,35 @@ def _read_population(path: Path) -> tuple[dict[str, int], int]:
         value = _number(totals[index])
         if value is not None:
             population[region] = int(value)
-    return population, latest_year
+    age_rows = {
+        "15_64": {
+            "15 19", "20 24", "25 29", "30 34", "35 39",
+            "40 44", "45 49", "50 54", "55 59", "60 64",
+        },
+        "65_plus": {"65 69", "70 74", "75 79", "80 84", "85 i vise"},
+    }
+    for row in rows[header_index + 1 :]:
+        if not row:
+            continue
+        group = next(
+            (
+                name
+                for name, labels in age_rows.items()
+                if _ascii_key(row[0]) in labels
+            ),
+            None,
+        )
+        if group is None:
+            continue
+        for index, heading in enumerate(headers):
+            match = re.fullmatch(r"\s*(20\d{2})\s+(.+?)\s+Svega\s*", heading)
+            if not match or int(match.group(1)) != latest_year or index >= len(row):
+                continue
+            region = canonical_region(match.group(2))
+            value = _number(row[index])
+            if region is not None and value is not None:
+                age_groups[region][group] += int(value)
+    return population, dict(age_groups), latest_year
 
 
 def _number(value: Any) -> float | None:
@@ -650,6 +684,20 @@ def _combine_values(values: dict[str, int]) -> dict[str, int]:
     return combined
 
 
+def _combine_age_groups(
+    values: dict[str, dict[str, int]],
+) -> dict[str, dict[str, int]]:
+    combined: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"15_64": 0, "65_plus": 0}
+    )
+    for region, groups in values.items():
+        target = combined_region(region)
+        if target is not None:
+            for group in ("15_64", "65_plus"):
+                combined[target][group] += groups.get(group, 0)
+    return dict(combined)
+
+
 def build_dashboard_data(data_root: Path) -> DashboardData:
     data_dir = data_root / "data"
     population_dir = data_root / "stanovništvo"
@@ -675,8 +723,9 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         raise FileNotFoundError(f"Nedostaje DZS Excel tablica {dzs_labor_path}")
 
     population_path = max(population_files, key=lambda file: file.name)
-    population, population_year = _read_population(population_path)
+    population, age_groups, population_year = _read_population(population_path)
     population = _combine_values(population)
+    age_groups = _combine_age_groups(age_groups)
     vacancies, hzz_date = _read_hzz(hzz_dir, occupation_dir)
     reports = [
         _read_permit_report(file)
@@ -693,20 +742,39 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
             {
                 "regija": region,
                 "stanovnici": population.get(region),
+                "stanovnici_15_64": age_groups.get(region, {}).get("15_64"),
+                "stanovnici_65_plus": age_groups.get(region, {}).get("65_plus"),
                 "hzz_oglasi": int(hzz_counts.get(region, 0)),
                 "mup_dozvole": permit_values.get(region),
             }
             for region in regions
         ]
     )
-    regional = regional.dropna(subset=["stanovnici", "mup_dozvole"])
+    regional = regional.dropna(
+        subset=[
+            "stanovnici",
+            "stanovnici_15_64",
+            "stanovnici_65_plus",
+            "mup_dozvole",
+        ]
+    )
     if regional.empty:
         raise ValueError(
             "HZZ, MUP i DZS podaci nemaju zajedničke regionalne jedinice."
         )
     regional["stanovnici"] = regional["stanovnici"].astype(int)
-    regional["mup_dozvole"] = regional["mup_dozvole"].astype(int)
+    for column in ["mup_dozvole", "stanovnici_15_64", "stanovnici_65_plus"]:
+        regional[column] = regional[column].astype(int)
+    regional["udio_15_64"] = (
+        regional["stanovnici_15_64"] / regional["stanovnici"] * 100
+    )
+    regional["udio_65_plus"] = (
+        regional["stanovnici_65_plus"] / regional["stanovnici"] * 100
+    )
     regional = calculate_regional_rates(regional)
+    regional["oglasi_na_1000_15_64"] = (
+        regional["hzz_oglasi"] / regional["stanovnici_15_64"] * 1000
+    )
 
     occupation_counts = (
         vacancies.groupby(["regija", "zanimanje"], as_index=False)
@@ -789,6 +857,7 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         history=history,
         permit_date=latest["date"],
         population_year=population_year,
+        demographic_year=population_year,
         hzz_date=hzz_date,
         source_files=(
             population_path.name,

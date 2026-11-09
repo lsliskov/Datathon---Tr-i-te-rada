@@ -15,7 +15,8 @@ zanimanja traže i u kojim su djelatnostima izdane MUP-ove dozvole za boravak i 
 Projekt odgovara kategoriji **Gospodarstvo i učinkovito upravljanje** jer:
 
 - pretvara više javnih izvora u razumljiv regionalni pregled,
-- podržava usporedbu županija i prepoznavanje regionalnih razlika,
+- stavlja zanimanja i usporedbu zanimanja po regijama u prvi plan,
+- prikazuje dobnu strukturu stanovništva kao regionalni kontekst,
 - daje podatkovnu podlogu za planiranje obrazovanja, zapošljavanja i lokalnih mjera,
 - prikazuje najtraženija zanimanja i djelatnosti,
 - jasno razlikuje činjenice od interpretacije i prikazuje razdoblje svakog izvora,
@@ -60,10 +61,10 @@ radnika.
 
 ## Ključna pitanja
 
-1. U kojim se regijama trenutno objavljuje najviše HZZ oglasa?
-2. Koja se zanimanja oglašavaju u Hrvatskoj i kako se njihov broj razlikuje po regijama?
-3. Koje djelatnosti imaju najviše izdanih MUP-ovih dozvola?
-4. Kako se broj HZZ oglasa po zanimanju i regiji mijenja kada se prikaže na 1.000 stanovnika?
+1. Koja se zanimanja oglašavaju u Hrvatskoj i kako se njihov broj razlikuje po regijama?
+2. Kako se oglasi razlikuju kada ih prikažemo na 1.000 stanovnika ili na 1.000 stanovnika u dobi 15–64?
+3. Kakav je udio stanovništva u dobi 15–64 i 65+ po regijama?
+4. Koje djelatnosti imaju najviše izdanih MUP-ovih dozvola kao dodatni kontekst?
 5. Kako se u dostupnoj DZS seriji kreću zaposlenost i nezaposlenost?
 
 ## Korišteni podaci
@@ -96,15 +97,23 @@ Detaljan popis poveznica nalazi se u [`data/SOURCES.txt`](data/SOURCES.txt).
 - **Kumulativna vrijednost** zbraja dozvole evidentirane od početka godine do
   datuma MUP-ova izvještaja.
 - **Snapshot** je lokalno spremljeni izvadak izvora u trenutku preuzimanja.
+- **Demografski nazivnik 15–64** je procijenjeni broj stanovnika te dobi koji
+  se koristi za usporedbu oglasa. Dob 15–64 nije isto što i aktivna radna snaga:
+  u toj skupini mogu biti zaposleni, nezaposleni, učenici, studenti i druge osobe.
 
 ## Metodologija
 
 ### Regionalna usporedba
 
 HZZ oglasi se grupiraju prema regiji i prepoznatoj skupini zanimanja. Aplikacija
-prikazuje ili broj oglasa ili broj oglasa na 1.000 stanovnika. MUP-ove izdane
-dozvole i njihova stopa po stanovniku ostaju zasebni pokazatelji i ne ulaze u
-izračun HZZ vrijednosti. Nema kompozitnog indeksa koji miješa oglase i dozvole.
+prikazuje broj oglasa, broj oglasa na 1.000 stanovnika i broj oglasa na 1.000
+stanovnika u dobi 15–64. MUP-ove izdane dozvole i njihova stopa po stanovniku
+ostaju zaseban dodatni kontekst i ne ulaze u izračun HZZ vrijednosti.
+
+Demografski podaci koriste procjenu stanovništva za 2024. godinu. HZZ oglasi
+su noviji izvadak, pa stopa na 1.000 stanovnika 15–64 nije vremenski potpuno
+usklađena s oglasima. Ona opisuje odnos oglasa prema veličini dobne skupine,
+ne omjer slobodnih radnih mjesta i aktivne radne snage.
 
 Za izračun indeksa ponude i potražnje potrebni su vremenski i prostorno
 usporedivi podaci o slobodnim radnim mjestima i nezaposlenim osobama. Oglas
@@ -136,10 +145,10 @@ pogrešno razvrstati pojedinačne oglase. Izvorna kategorija, naziv oglasa i izv
 klasifikacije zadržavaju se radi provjere, no korisnik ne smije tumačiti
 normaliziranu kategoriju kao potvrđenu stručnu procjenu.
 
-MUP-ove dozvole prikazuju se prema MUP-ovim djelatnostima. To su podaci o
-izdanim dozvolama, a ne o trenutačno aktivnim dozvolama ili stvarnom broju
-zaposlenih stranih radnika. HZZ zanimanja i MUP djelatnosti ostaju odvojene
-klasifikacije jer nisu izravno usporedive.
+MUP-ove dozvole prikazuju se prema MUP-ovim djelatnostima kao dodatni kontekst.
+To su podaci o izdanim dozvolama, a ne o trenutačno aktivnim dozvolama ili
+stvarnom broju zaposlenih stranih radnika. HZZ zanimanja i MUP djelatnosti
+ostaju odvojene klasifikacije jer nisu izravno usporedive.
 
 ### Interakcije
 
@@ -178,6 +187,10 @@ Korisnik može:
 - MUP ne daje istu regionalnu razinu za Grad Zagreb i Zagrebačku županiju, pa su spojeni.
 - HZZ zanimanja i MUP djelatnosti nisu izravno usporedive klasifikacije.
 - DZS procjena stanovništva za regionalne stope odnosi se na 2024. godinu.
+- Udio stanovništva 15–64 i 65+ odnosi se na istu procjenu iz 2024.; dobna
+  skupina nije isto što i aktivna radna snaga.
+- HZZ oglasi dostupni su noviji od demografskog nazivnika, pa usporedba na
+  1.000 stanovnika 15–64 ima različit vremenski obuhvat izvora.
 - Regionalni nazivnik u ovoj verziji koristi procjenu stanovništva za 2024.;
   novija godina nije dostupna u DZS PxWeb tablici SP22_2 provjerenoj 09.11.2026.
 - U spremljenom HZZ izvatku 547 od 5.920 oglasa (9,2 %) nema pouzdano
