@@ -29,8 +29,8 @@ Projekt odgovara kategoriji **Gospodarstvo i učinkovito upravljanje** jer:
 | Relevantnost | Projekt odgovara na konkretno pitanje gdje su potrebe za radnicima najveće i koja su zanimanja tražena. |
 | Uključivanje i korist za zajednicu | Javni dashboard je razumljiv građanima, poslodavcima i upravi; tablice se mogu preuzeti u XLSX-u za daljnju uporabu. |
 | Inovativnost i primjena tehnologije | Više heterogenih izvora pretvoreno je u jednu interaktivnu regionalnu analizu s pretragom i usporedbom regija. |
-| Izvedivost i integracijski potencijal | Projekt je reproducibilan iz lokalnih snapshotova, koristi jednostavan Streamlit/Pandas sloj i ima plan automatiziranog osvježavanja. |
-| Prezentacija | Aplikacija vodi korisnika od sažetka preko regionalne usporedbe do zanimanja, djelatnosti i metodologije; video prikazuje taj tijek. |
+| Izvedivost i integracijski potencijal | Projekt je reproducibilan iz lokalno spremljenih izvadaka, koristi jednostavan Streamlit/Pandas sloj i jasno odvaja učitavanje podataka od prikaza. |
+| Prezentacija | Aplikacija vodi korisnika od sažetka preko regionalne usporedbe do zanimanja, djelatnosti i metodologije. |
 
 Projekt ne tvrdi da jedan kompozitni broj sam po sebi dokazuje manjak radnika.
 Relativni regionalni pokazatelj služi kao početni alat za usporedbu, dok se
@@ -57,9 +57,25 @@ sastavni dio rezultata.
 | MUP | izdane dozvole i djelatnosti | [MUP statistika](https://mup.gov.hr/statistika/281716) |
 | DZS | stanovništvo | [Procjene stanovništva](https://podaci.dzs.hr/media/vb1ae2vm/procjene-stanovnistva.xlsx) |
 | DZS | zaposlenost, nezaposlenost i aktivno stanovništvo | [Administrativni izvori](https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx) |
-| DZS | plaće | [Plaće](https://podaci.dzs.hr/media/yegdgb5v/place.xlsx) |
 
 Detaljan popis poveznica nalazi se u [`data/SOURCES.txt`](data/SOURCES.txt).
+
+### Kratki rječnik
+
+- **RSS** je format u kojem HZZ objavljuje strojno čitljiv popis trenutno
+  dostupnih oglasa.
+- **Oglas** je objava na HZZ-u; ne mora značiti jedno slobodno radno mjesto
+  jer može obuhvatiti više radnika ili biti ponovno objavljen.
+- **Stopa na 1.000 stanovnika** omogućuje usporedbu regija različite veličine.
+  Broj stanovnika je nazivnik, odnosno vrijednost prema kojoj se broj oglasa
+  ili dozvola preračunava.
+- **Min–max normalizacija** pretvara vrijednosti u zajednički raspon 0–100.
+- **Relativni pokazatelj** je prosjek normalizirane stope oglasa i normalizirane
+  stope dozvola. On služi za usporedbu prikazanih regija, a nije službena
+  stopa manjka radnika.
+- **Kumulativna vrijednost** zbraja dozvole evidentirane od početka godine do
+  datuma MUP-ova izvještaja.
+- **Snapshot** je lokalno spremljeni izvadak izvora u trenutku preuzimanja.
 
 ## Metodologija
 
@@ -107,31 +123,8 @@ Ograničenja su namjerno prikazana na stranici **Podaci i metodologija** kako bi
 korisnik mogao pravilno tumačiti rezultate i razlikovati opisni pokazatelj od
 službene statistike.
 
-## Budući razvoj
-
-1. Prikupljati HZZ RSS periodično i izgraditi povijest oglasa po mjesecima.
-2. Uvesti broj novootvorenih oglasa i trajanje oglasa, uz uklanjanje duplikata.
-3. Povezati HZZ oglase i nezaposlene po istoj skupini zanimanja i regiji.
-4. Dodati plaću, vrstu ugovora, radno vrijeme i sezonalnost kada su dostupni.
-5. Uvesti stvarni omjer slobodnih radnih mjesta i nezaposlenih po županiji.
-6. Dodati službene geometrije županija umjesto približnih točaka na karti.
-7. Izgraditi automatizirano osvježavanje i kontrolu promjena izvora.
-
 ## Transparentnost i AI
 
 AI je korišten kao pomoć pri analizi potreba projekta, oblikovanju metodologije,
 izradi i provjeri programskog koda te pisanju dokumentacije. Izbor izvora,
 tumačenje ograničenja i konačna odgovornost za projekt ostaju na autorici.
-
-## Završna provjera za predaju
-
-- [x] Odabrana kategorija: Gospodarstvo i učinkovito upravljanje.
-- [x] Korišteni javni izvori i navedene poveznice za ponovno preuzimanje.
-- [x] Zabilježen datum preuzimanja podataka: 09.11.2026.
-- [x] Dodana metodologija, kvaliteta podataka i ograničenja.
-- [x] Dodana interaktivna usporedba regija i pretraživanje zanimanja.
-- [x] Dodan izvoz rezultata u XLSX.
-- [x] Dodana napomena o korištenju AI-ja.
-- [ ] Priložiti članove tima i kontakt prema prijavnom obrascu.
-- [ ] Priložiti javnu poveznicu na završnu aplikaciju/repozitorij.
-- [ ] Predati video prezentaciju prema uvjetima javnog poziva.

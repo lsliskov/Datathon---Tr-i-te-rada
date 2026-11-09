@@ -11,7 +11,21 @@ from utils.ui import (
 
 data = get_dashboard_data()
 regions = data.regional["regija"].tolist()
-selected_region = st.selectbox("Odaberite regiju", regions)
+with st.sidebar:
+    st.subheader("Filteri")
+    selected_region = st.selectbox("Odabrana regija", regions)
+    first_region = st.selectbox("Prva regija", regions, index=0)
+    second_region = st.selectbox(
+        "Druga regija",
+        regions,
+        index=min(1, len(regions) - 1),
+    )
+    similar_limit = st.slider(
+        "Broj sličnih regija",
+        min_value=1,
+        max_value=min(5, len(regions) - 1),
+        value=min(3, len(regions) - 1),
+    )
 selected = data.regional.loc[data.regional["regija"] == selected_region].iloc[0]
 
 st.title("Regionalna analiza", anchor=False)
@@ -99,15 +113,6 @@ with right:
     )
 
 st.subheader("Usporedite dvije regije")
-compare_left, compare_right = st.columns(2)
-with compare_left:
-    first_region = st.selectbox("Prva regija", regions, index=0)
-with compare_right:
-    second_region = st.selectbox(
-        "Druga regija",
-        regions,
-        index=min(1, len(regions) - 1),
-    )
 comparison = data.regional.set_index("regija").loc[
     [first_region, second_region],
     ["hzz_oglasi", "mup_dozvole", "oglasi_na_1000", "dozvole_na_1000"],
@@ -135,12 +140,6 @@ st.caption(
     "Sličnost se računa prema oglasima i dozvolama na 1.000 stanovnika te "
     "relativnom pokazatelju. To su regije s najsličnijim obrascem, a ne nužno "
     "geografski susjedi."
-)
-similar_limit = st.slider(
-    "Broj sličnih regija",
-    min_value=1,
-    max_value=min(5, len(regions) - 1),
-    value=min(3, len(regions) - 1),
 )
 similar = find_similar_regions(data.regional, selected_region, similar_limit)
 similar_display = similar.loc[

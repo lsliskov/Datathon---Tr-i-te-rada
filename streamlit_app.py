@@ -35,10 +35,10 @@ page = st.navigation(
             icon=":material/menu_book:",
         ),
     ],
-    position="sidebar",
+    position="top",
 )
 
 with st.sidebar:
-    st.caption("Analitički pregled otvorenih podataka RH")
+    st.caption("Filteri i kontekst prikaza")
 
 page.run()

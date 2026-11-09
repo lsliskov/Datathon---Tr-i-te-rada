@@ -22,13 +22,14 @@ st.caption(
 )
 
 region_options = ["Cijela Hrvatska", *data.regional["regija"].tolist()]
-selected_region = st.selectbox("HZZ regija", region_options)
-search = st.text_input(
-    "Pretražite zanimanje",
-    placeholder="npr. vozač, kuhar, građevina",
-    label_visibility="collapsed",
-)
-top_n = st.slider("Broj zanimanja na grafikonu", min_value=5, max_value=20, value=12)
+with st.sidebar:
+    st.subheader("Filteri")
+    selected_region = st.selectbox("HZZ regija", region_options)
+    search = st.text_input(
+        "Pretražite zanimanje",
+        placeholder="npr. vozač, kuhar, građevina",
+    )
+    top_n = st.slider("Broj zanimanja na grafikonu", min_value=5, max_value=20, value=12)
 vacancy_records = data.occupations
 if selected_region == "Cijela Hrvatska":
     vacancy_records = (

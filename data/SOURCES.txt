@@ -7,14 +7,8 @@ DZS:
   https://podaci.dzs.hr/media/yjvbaa2n/zaposlenost-aktivno-stanovnistvo.xlsx
 - zaposlenost-administrativni-izvori.xlsx
   https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx
-- place.xlsx
-  https://podaci.dzs.hr/media/yegdgb5v/place.xlsx
 - procjene-stanovnistva.xlsx
   https://podaci.dzs.hr/media/vb1ae2vm/procjene-stanovnistva.xlsx
-- DZS katalog i opis skupova:
-  https://data.gov.hr/ckan/dataset/statistika-u-nizu-zaposlenost-i-pla-e
-- DZS plaće:
-  https://podaci.dzs.hr/media/yegdgb5v/place.xlsx
 
 HZZ:
 - data/hzz_zupanije/rsszup1.xml ... rsszup21.xml
