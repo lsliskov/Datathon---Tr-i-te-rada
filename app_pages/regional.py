@@ -162,19 +162,67 @@ comparison_regions = data.regional.set_index("regija").loc[
 hzz_comparison = comparison_regions[["hzz_oglasi"]].rename(
     columns={"hzz_oglasi": "Dostupni HZZ oglasi"}
 )
-st.bar_chart(hzz_comparison, y_label="Broj oglasa")
+fig = px.bar(
+    hzz_comparison.reset_index().melt(id_vars="regija"),
+    x="regija",
+    y="value",
+    color="variable",
+    labels={"regija": "Regija", "value": "Broj oglasa", "variable": ""},
+)
+fig.update_layout(showlegend=False, height=300)
+st.plotly_chart(
+    fig,
+    width="stretch",
+    config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
+)
 hzz_rate_comparison = comparison_regions[["oglasi_na_1000"]].rename(
     columns={"oglasi_na_1000": "HZZ oglasi / 1.000 stanovnika"}
 )
-st.bar_chart(hzz_rate_comparison, y_label="Oglasi na 1.000 stanovnika")
+fig = px.bar(
+    hzz_rate_comparison.reset_index().melt(id_vars="regija"),
+    x="regija",
+    y="value",
+    color="variable",
+    labels={"regija": "Regija", "value": "Oglasi / 1.000 stanovnika", "variable": ""},
+)
+fig.update_layout(showlegend=False, height=300)
+st.plotly_chart(
+    fig,
+    width="stretch",
+    config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
+)
 permit_comparison = comparison_regions[["mup_dozvole"]].rename(
     columns={"mup_dozvole": "MUP izdane dozvole"}
 )
-st.bar_chart(permit_comparison, y_label="Broj dozvola")
+fig = px.bar(
+    permit_comparison.reset_index().melt(id_vars="regija"),
+    x="regija",
+    y="value",
+    color="variable",
+    labels={"regija": "Regija", "value": "Izdane dozvole", "variable": ""},
+)
+fig.update_layout(showlegend=False, height=300)
+st.plotly_chart(
+    fig,
+    width="stretch",
+    config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
+)
 permit_rate_comparison = comparison_regions[["dozvole_na_1000"]].rename(
     columns={"dozvole_na_1000": "MUP dozvole / 1.000 stanovnika"}
 )
-st.bar_chart(permit_rate_comparison, y_label="Dozvole na 1.000 stanovnika")
+fig = px.bar(
+    permit_rate_comparison.reset_index().melt(id_vars="regija"),
+    x="regija",
+    y="value",
+    color="variable",
+    labels={"regija": "Regija", "value": "Dozvole / 1.000 stanovnika", "variable": ""},
+)
+fig.update_layout(showlegend=False, height=300)
+st.plotly_chart(
+    fig,
+    width="stretch",
+    config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
+)
 
 regional_table = data.regional.sort_values("hzz_oglasi", ascending=False).loc[
     :,

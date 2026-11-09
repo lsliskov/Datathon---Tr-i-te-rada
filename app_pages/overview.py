@@ -190,9 +190,25 @@ if not data.national_labor.empty:
         st.info("Odaberite barem jednu godinu DZS podataka.")
     else:
         labor = filtered_labor.rename(columns={"razdoblje": "Razdoblje"})
-        st.line_chart(
-            labor.set_index("Razdoblje")[["Nezaposleni", "Zaposleni"]],
-            y_label="Osobe",
+        labor_chart = labor.melt(
+            id_vars="Razdoblje",
+            value_vars=["Nezaposleni", "Zaposleni"],
+            var_name="Skupina",
+            value_name="Osobe",
+        )
+        fig = px.line(
+            labor_chart,
+            x="Razdoblje",
+            y="Osobe",
+            color="Skupina",
+            markers=True,
+            labels={"Razdoblje": "Razdoblje", "Osobe": "Osobe", "Skupina": ""},
+        )
+        fig.update_layout(height=400)
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
         )
         st.caption(
             "Serija prikazuje dostupne mjesečne vrijednosti iz DZS-ove tablice "
