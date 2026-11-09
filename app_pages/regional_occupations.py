@@ -1,7 +1,7 @@
 import plotly.express as px
 import streamlit as st
 
-from utils.data import format_number
+from utils.data import _ascii_key, format_number
 from utils.ui import download_table, get_dashboard_data
 
 data = get_dashboard_data()
@@ -10,6 +10,27 @@ classified = data.occupations.loc[
 ]
 category_totals = (
     classified.groupby("zanimanje")["oglasi"].sum().sort_values(ascending=False)
+)
+raw_categories = category_totals.index.tolist()
+categories = []
+category_aliases = {}
+for category in raw_categories:
+    key = _ascii_key(category)
+    candidates = [
+        candidate
+        for candidate in raw_categories
+        if len(_ascii_key(candidate)) > len(key)
+        and _ascii_key(candidate).startswith(key)
+    ]
+    canonical = max(candidates, key=len) if candidates else category
+    category_aliases[category] = canonical
+    if canonical not in categories:
+        categories.append(canonical)
+category_totals = (
+    classified.assign(zanimanje=classified["zanimanje"].map(category_aliases))
+    .groupby("zanimanje")["oglasi"]
+    .sum()
+    .sort_values(ascending=False)
 )
 categories = category_totals.index.tolist()
 default_categories = categories[: min(8, len(categories))]
@@ -48,7 +69,10 @@ if not selected_categories:
     st.info("Odaberite barem jednu skupinu zanimanja.")
 else:
     matrix = (
-        classified.loc[classified["zanimanje"].isin(selected_categories)]
+        classified.assign(
+            zanimanje=classified["zanimanje"].map(category_aliases)
+        )
+        .loc[lambda frame: frame["zanimanje"].isin(selected_categories)]
         .pivot_table(
             index="regija",
             columns="zanimanje",
