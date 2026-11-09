@@ -31,6 +31,12 @@ dozvole prikazuju se odvojeno kao zaseban kontekst; ne spajaju se s oglasima u
 zajednički indeks. Aplikacija također prikazuje djelatnosti iz MUP-ovih podataka
 i nacionalni DZS kontekst radne snage.
 
+Rezultati opisuju spremljene izvatke, ne nužno cijelo tržište rada. Oglasi nisu
+isto što i slobodna radna mjesta, ponovne objave s drugim identifikatorom mogu
+ostati zasebne, a pravila za razvrstavanje naslova nisu neovisno validirana.
+Udio oglasa bez pouzdane kategorije i druga ograničenja navedeni su u
+[PROJECT.md](PROJECT.md) i na stranici **Podaci i metodologija**.
+
 MUP objavljuje podatke za Zagrebačku policijsku upravu bez odvojenog iznosa za
 Grad Zagreb. Zbog toga se Grad Zagreb i Zagrebačka županija objedinjuju u
 regionalnoj analizi. Karta koristi približne točke središta regija.

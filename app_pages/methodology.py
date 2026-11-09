@@ -61,6 +61,9 @@ st.markdown(
       „doktor/doktorica medicine” (ne veterinarske medicine) i
       „keramičar/keramičarka” imaju izričito pravilo normalizacije. Izvorna
       kategorija i pravilo vidljivi su uz pojedinačni oglas.
+    - Pravila iz naslova deterministička su i nisu neovisno validirana prema
+      stručno označenom uzorku; mogu pogrešno razvrstati pojedinačni oglas.
+      Kategorije su šire skupine, ne precizan stručni profil svakog posla.
     - MUP podatke prikazuje po policijskoj upravi i djelatnosti.
     - DZS stanovništvo služi kao nazivnik za stope na 1.000 stanovnika.
     - DZS tablica zaposlenosti i nezaposlenosti daje nacionalnu vremensku seriju.
@@ -88,8 +91,13 @@ st.markdown(
       oglasa u ovom izvatku ({unclassified_share:.1f} %) nema pouzdano dostupnu
       kategoriju. Izvorni naslov i oznaka kategorije mogu se provjeriti na stranici
       zanimanja.
+    - Deduplikacija koristi ključ regija + GUID; ako GUID nedostaje, koristi
+      poveznicu, a ako nedostaju oba, naziv oglasa i datum objave. Ponovna objava
+      s drugim identifikatorom može ostati zasebno; jedan oglas može tražiti više
+      radnika. Nerazvrstani oglasi nisu uključeni u agregate zanimanja.
     - MUP-ove dozvole su kumulativne vrijednosti za tekuću godinu do datuma
-      izvještaja, a ne broj trenutačno zaposlenih stranih radnika.
+      izvještaja, a ne broj osoba kojima je dozvola trenutačno aktivna ili
+      trenutačno zaposlenih stranih radnika; one bilježe izdane dozvole.
     - MUP prikazuje Grad Zagreb i Zagrebačku županiju zajedno; zato su i HZZ
       oglasi u regionalnoj usporedbi objedinjeni.
     - Regionalni nazivnik stanovništva iznosi procjenu za {data.population_year}.

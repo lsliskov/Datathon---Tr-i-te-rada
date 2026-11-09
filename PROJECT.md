@@ -7,8 +7,8 @@ za radnicima u Hrvatskoj. Projekt povezuje HZZ oglase za posao, MUP-ove izdane
 dozvole za boravak i rad te DZS podatke o stanovništvu i radnoj snazi.
 
 Rezultat je namijenjen građanima, poslodavcima, lokalnoj upravi i donositeljima
-odluka koji žele brzo vidjeti gdje je potražnja za radnicima najveća, koja su
-zanimanja najtraženija i u kojim se djelatnostima koristi međunarodna radna snaga.
+odluka koji žele istražiti gdje se objavljuje najviše HZZ oglasa, koja se
+zanimanja traže i u kojim su djelatnostima izdane MUP-ove dozvole za boravak i rad.
 
 ## Usklađenost s natjecanjem
 
@@ -74,8 +74,8 @@ radnika.
   čitaju se iz projektnih direktorija. Nema baze podataka ni automatskog
   dohvaćanja izvora tijekom rada aplikacije.
 - Obrada čisti nazive regija, spaja Zagreb prema obuhvatu MUP-a, uklanja
-  ponovljene HZZ oglase i izračunava pokazatelje po stanovniku. Rezultati se
-  prikazuju u pregledniku i izvoze u XLSX.
+  HZZ zapise s istom regionalnom oznakom i identifikatorom oglasa te izračunava
+  pokazatelje po stanovniku. Rezultati se prikazuju u pregledniku i izvoze u XLSX.
 - Za povezivanje s drugim sustavima potrebni su stabilni identifikatori
   prostornih jedinica, dokumentirani metapodaci i verzije skupova, dogovoreni
   formati razmjene (npr. CSV/JSON) te redovito ažuriranje i validacija izvora.
@@ -155,8 +155,17 @@ Pojedinačni oglas prikazuje i izvorni naziv/kategoriju i primijenjenu kategorij
 kako bi se ispravak mogao provjeriti. Oglasi bez pouzdane klasifikacije ostaju
 „Nerazvrstano”.
 
-MUP-ove dozvole prikazuju se prema MUP-ovim djelatnostima. HZZ zanimanja i MUP
-djelatnosti ostaju odvojene klasifikacije jer nisu izravno usporedive.
+Klasifikacija je ujednačena u šire skupine HZZ-a, a nije detaljna klasifikacija
+svakog zanimanja. Pravila iz naziva oglasa su deterministička i oslanjaju se na
+naziv, nisu neovisno validirana prema stručno označenom uzorku te zato mogu
+pogrešno razvrstati pojedinačne oglase. Izvorna kategorija, naziv oglasa i izvor
+klasifikacije zadržavaju se radi provjere, no korisnik ne smije tumačiti
+normaliziranu kategoriju kao potvrđenu stručnu procjenu.
+
+MUP-ove dozvole prikazuju se prema MUP-ovim djelatnostima. To su podaci o
+izdanim dozvolama, a ne o trenutačno aktivnim dozvolama ili stvarnom broju
+zaposlenih stranih radnika. HZZ zanimanja i MUP djelatnosti ostaju odvojene
+klasifikacije jer nisu izravno usporedive.
 
 ### Interakcije
 
@@ -174,11 +183,19 @@ Korisnik može:
 
 ## Ograničenja
 
-- HZZ RSS predstavlja trenutno dostupne oglase, a ne nužno broj stvarnih radnih mjesta.
-- Jedan oglas može obuhvatiti više radnika, a isti oglas može biti objavljen više puta.
+- HZZ RSS prikazuje oglase dostupne preko HZZ-a u trenutku preuzimanja; nije
+  potpuna evidencija svih slobodnih radnih mjesta u gospodarstvu ni arhiva svih
+  objava. Oglas može obuhvatiti više radnika.
+- Deduplikacija koristi ključ regija + GUID; ako GUID nedostaje, koristi
+  poveznicu, a ako nedostaju oba, naziv oglasa i datum objave. Ponovno objavljen
+  oglas s drugim identifikatorom može ostati kao zaseban zapis.
+- HZZ oglas može prestati biti dostupan prije sljedećeg preuzimanja, a spremljeni
+  izvadak predstavlja snapshot u trenutku preuzimanja, ne bazu koja se stalno
+  ažurira.
 - HZZ kategorije mogu nedostajati ili biti skraćene; naziv oglasa i izvorna
   kategorija ostaju vidljivi uz normaliziranu kategoriju. Pravila iz naslova
-  primjenjuju se samo na jasno prepoznate nazive, ne na sve nepoznate oglase.
+  primjenjuju se samo na prepoznate nazive, nisu neovisno validirana i mogu
+  pogrešno razvrstati oglas; nepoznati ili višeznačni oglasi ostaju nerazvrstani.
 - MUP-ove dozvole su izdane dozvole, a ne broj trenutačno zaposlenih stranih radnika.
 - MUP-ovi mjesečni izvještaji sadrže kumulativne vrijednosti do datuma izvještaja.
 - U priloženom izvatku ima 41 MUP izvještaj od travnja 2023. do kolovoza 2026.;
@@ -191,7 +208,8 @@ Korisnik može:
   novija godina nije dostupna u DZS PxWeb tablici SP22_2 provjerenoj 09.11.2026.
 - U spremljenom HZZ izvatku 547 od 5.920 oglasa (9,2 %) nema pouzdano
   prepoznatu kategoriju; njihova klasifikacija nije uključena u agregate
-  zanimanja, ali se oglasi mogu pregledati u tablici pojedinačnih oglasa.
+  zanimanja ni u usporedbu zanimanja po regijama, ali se oglasi mogu pregledati
+  u tablici pojedinačnih oglasa.
 - DZS nacionalna serija aktivnog stanovništva je privremena; u izvatku obuhvaća
   listopad 2024. – rujan 2026. i nije regionalno usporediva s HZZ oglasima.
 - Dostupni izvori imaju različite datume i vremenske obuhvate.
