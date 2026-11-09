@@ -10,7 +10,7 @@ page = st.navigation(
     [
         st.Page(
             "app_pages/overview.py",
-            title="Pregled tržišta",
+            title="Sažetak",
             icon=":material/dashboard:",
             default=True,
         ),
@@ -25,9 +25,9 @@ page = st.navigation(
             icon=":material/work:",
         ),
         st.Page(
-            "app_pages/pressure.py",
-            title="Regionalna potražnja",
-            icon=":material/query_stats:",
+            "app_pages/regional_occupations.py",
+            title="Zanimanja po regijama",
+            icon=":material/work_history:",
         ),
         st.Page(
             "app_pages/methodology.py",

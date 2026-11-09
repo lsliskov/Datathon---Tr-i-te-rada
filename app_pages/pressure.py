@@ -6,21 +6,26 @@ from utils.ui import RELATIVE_SCALE, download_table, get_dashboard_data
 
 data = get_dashboard_data()
 
-st.title("Regionalna potražnja i intenzitet dozvola", anchor=False)
+st.title("Usporedba regionalne potražnje", anchor=False)
 st.caption(
-    "Relativni pokazatelj uspoređuje regionalnu vidljivost HZZ oglasa i izdanih "
-    "MUP-ovih dozvola po 1.000 stanovnika."
+    "Ova stranica rangira regije prema zajedničkom pokazatelju oglasa i dozvola, "
+    "uzimajući u obzir i broj stanovnika."
 )
 st.caption(
     f"HZZ objave do {data.hzz_date:%d.%m.%Y} · MUP izvještaj {data.permit_date:%d.%m.%Y} · "
     f"stanovništvo {data.population_year} · podaci preuzeti 09.11.2026."
 )
 st.write(
-    "Pokazatelj daje brz pregled regija s najizraženijom kombinacijom oglasa i "
-    "izdanih dozvola. Za detaljnije objašnjenje potražnje koristite stranice "
-    "Regionalna analiza i Zanimanja i djelatnosti."
+    "Veća vrijednost znači da su oglasi i izdane dozvole po stanovniku visoki "
+    "u usporedbi s drugim prikazanim regijama. To je alat za snalaženje i "
+    "usporedbu, a ne službena procjena manjka radnika."
 )
 
+st.subheader("Kako se regije rangiraju?")
+st.caption(
+    "Grafikon prikazuje rezultat na ljestvici 0–100. Odaberi ili prijeđi preko "
+    "regije da vidiš broj oglasa, dozvola i njihove stope po stanovniku."
+)
 chart_data = data.regional.sort_values("indeks_pritiska", ascending=True)
 fig = px.bar(
     chart_data,
@@ -44,6 +49,11 @@ st.plotly_chart(
     config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
 )
 
+st.subheader("Brojevi iza pokazatelja")
+st.caption(
+    "Tablica pokazuje i apsolutne brojeve i stope na 1.000 stanovnika kako bi "
+    "bilo jasno što utječe na rang svake regije."
+)
 table = data.regional.sort_values("indeks_pritiska", ascending=False).loc[
     :,
     [
@@ -84,14 +94,15 @@ download_table(table, "labourpulse-pokazatelji.xlsx")
 with st.expander("Kako nastaje pokazatelj", icon=":material/functions:"):
     st.markdown(
         """
-        - HZZ oglasi / stanovništvo × 1.000.
-        - MUP-ove dozvole evidentirane do datuma izvještaja / stanovništvo × 1.000.
-        - Svaka stopa preslikava se na raspon 0–100 među prikazanim regijama.
-        - Pokazatelj je aritmetička sredina dviju ocjena.
+        1. Za svaku regiju računamo broj HZZ oglasa i MUP-ovih dozvola na
+           1.000 stanovnika.
+        2. Svaku od tih stopa zasebno uspoređujemo s najnižom i najvišom
+           vrijednošću među regijama i pretvaramo u raspon 0–100.
+        3. Konačni rezultat je prosjek dviju ocjena.
 
-        Viša vrijednost znači višu relativnu vrijednost kombiniranih stopa u prikazanom skupu.
-        Zagrebačka županija i Grad Zagreb prikazani su zajedno prema obuhvatu MUP-ove
-        policijske uprave.
+        Zato se rezultat može promijeniti ako se promijene regije ili podaci
+        u usporedbi. Zagrebačka županija i Grad Zagreb spojeni su jer MUP za njih
+        objavljuje zajednički podatak.
         """
     )
     st.caption(

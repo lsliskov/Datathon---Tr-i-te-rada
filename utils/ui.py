@@ -11,9 +11,6 @@ DATA_ROOT = Path(__file__).resolve().parents[1]
 PRIMARY_CHART_COLOR = "#0f766e"
 SECONDARY_CHART_COLOR = "#2563eb"
 ACCENT_CHART_COLOR = "#d97706"
-RELATIVE_SCALE = ["#d7f0ec", "#83c9bd", "#2a9d8f", "#176b65", "#0b3d3a"]
-
-
 def get_dashboard_data() -> DashboardData:
     try:
         return load_dashboard_data(str(DATA_ROOT))

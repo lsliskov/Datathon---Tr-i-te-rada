@@ -7,7 +7,7 @@ import html
 import re
 import unicodedata
 import xml.etree.ElementTree as ET
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -51,7 +51,8 @@ SOURCE_LINKS = {
         "https://podaci.dzs.hr/media/4snl4v1e/zaposlenost-administrativni-izvori.xlsx"
     ),
     "DZS procjene stanovništva": (
-        "https://podaci.dzs.hr/media/vb1ae2vm/procjene-stanovnistva.xlsx"
+        "https://web.dzs.hr/PXWeb/api/v1/hr/"
+        "Stanovni%C5%A1tvo/Procjene%20stanovni%C5%A1tva/SP22_2.px"
     ),
 }
 
@@ -107,6 +108,7 @@ REGION_COORDINATES = {
 class DashboardData:
     regional: pd.DataFrame
     occupations: pd.DataFrame
+    vacancies: pd.DataFrame
     sectors: pd.DataFrame
     history: pd.DataFrame
     permit_date: date
@@ -203,7 +205,7 @@ def _report_date_from_filename(path: Path) -> date | None:
     return date(year, month, calendar.monthrange(year, month)[1])
 
 
-def calculate_pressure_index(regional: pd.DataFrame) -> pd.DataFrame:
+def calculate_regional_rates(regional: pd.DataFrame) -> pd.DataFrame:
     result = regional.copy()
     result["oglasi_na_1000"] = (
         result["hzz_oglasi"] / result["stanovnici"] * 1000
@@ -211,46 +213,7 @@ def calculate_pressure_index(regional: pd.DataFrame) -> pd.DataFrame:
     result["dozvole_na_1000"] = (
         result["mup_dozvole"] / result["stanovnici"] * 1000
     )
-
-    for source, target in (
-        ("oglasi_na_1000", "ocjena_potraznje"),
-        ("dozvole_na_1000", "ocjena_dozvola"),
-    ):
-        values = result[source]
-        minimum = values.min()
-        maximum = values.max()
-        if pd.isna(minimum) or pd.isna(maximum):
-            result[target] = float("nan")
-        elif maximum == minimum:
-            result[target] = 50.0
-        else:
-            result[target] = (values - minimum) / (maximum - minimum) * 100
-
-    result["indeks_pritiska"] = result[
-        ["ocjena_potraznje", "ocjena_dozvola"]
-    ].mean(axis=1)
-    return result.sort_values("indeks_pritiska", ascending=False).reset_index(
-        drop=True
-    )
-
-
-def find_similar_regions(
-    regional: pd.DataFrame,
-    selected_region: str,
-    limit: int = 3,
-) -> pd.DataFrame:
-    features = ["oglasi_na_1000", "dozvole_na_1000", "indeks_pritiska"]
-    source = regional.set_index("regija")[features].astype(float)
-    if selected_region not in source.index:
-        raise ValueError(f"Nepoznata regija: {selected_region}")
-    scales = source.std().replace(0, 1).fillna(1)
-    distances = ((source - source.loc[selected_region]) / scales).pow(2).sum(axis=1).pow(0.5)
-    result = regional.copy()
-    result["slicnost_udaljenost"] = result["regija"].map(distances)
-    result = result.loc[result["regija"] != selected_region]
-    return result.sort_values("slicnost_udaljenost").head(limit).drop(
-        columns="slicnost_udaljenost"
-    )
+    return result.reset_index(drop=True)
 
 
 def _read_population(path: Path) -> tuple[dict[str, int], int]:
@@ -318,7 +281,7 @@ def _number(value: Any) -> float | None:
 def _read_national_labor(path: Path) -> pd.DataFrame:
     sheet = pd.read_excel(
         path,
-        sheet_name="9.2.1.",
+        sheet_name="9.2.3.",
         header=None,
         engine="openpyxl",
     )
@@ -363,7 +326,7 @@ def _plain_description(value: str) -> str:
 
 def _extract_category(description: str) -> str:
     match = re.search(
-        r"Kategorija\s*:\s*(.*?)(?=,\s*(?:Rok|Mjesto|Op|upanija)|$)",
+        r"Kategorija\s*:\s*(.*?)(?=,\s*(?:R(?:o(?:k)?)?|Mj(?:e(?:s(?:t(?:o)?)?)?)?|Op|[ŽZ](?:u(?:p(?:a(?:n(?:i(?:j(?:a)?)?)?)?)?)?)?)|$)",
         description,
         flags=re.IGNORECASE | re.DOTALL,
     )
@@ -382,8 +345,10 @@ def _extract_county(description: str) -> str | None:
     return canonical_region(match.group(1)) if match else None
 
 
-def _read_occupation_categories(path: Path) -> tuple[dict[str, str], list[str]]:
-    categories_by_id: dict[str, str] = {}
+def _read_occupation_categories(
+    path: Path,
+) -> tuple[dict[str, set[str]], list[str]]:
+    categories_by_id: dict[str, set[str]] = defaultdict(set)
     categories: set[str] = set()
     for file in sorted(path.glob("rsskat*.xml")):
         items = ET.parse(file).getroot().findall(".//item")
@@ -392,17 +357,27 @@ def _read_occupation_categories(path: Path) -> tuple[dict[str, str], list[str]]:
             for item in items
         ]
         labels = [label for label in labels if label != "Nerazvrstano"]
-        if not labels:
-            continue
-        feed_category = Counter(labels).most_common(1)[0][0]
-        categories.add(feed_category)
+        feed_category = Counter(labels).most_common(1)[0][0] if labels else None
+        if feed_category:
+            categories.add(feed_category)
         for item in items:
+            item_category = _extract_category(
+                _plain_description(item.findtext("description") or "")
+            )
+            category = (
+                item_category
+                if item_category != "Nerazvrstano"
+                else feed_category
+            )
+            if category is None:
+                continue
+            categories.add(category)
             identifier = (
                 item.findtext("guid") or item.findtext("link") or ""
             ).strip()
             if identifier:
-                categories_by_id.setdefault(identifier, feed_category)
-    return categories_by_id, sorted(categories)
+                categories_by_id[identifier].add(category)
+    return dict(categories_by_id), sorted(categories)
 
 
 def _canonical_occupation(value: str, categories: list[str]) -> str:
@@ -417,7 +392,57 @@ def _canonical_occupation(value: str, categories: list[str]) -> str:
         for normalized, category in category_keys.items()
         if len(key) >= 8 and normalized.startswith(key)
     ]
-    return matches[0] if len(matches) == 1 else "Nerazvrstano"
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        return "Nerazvrstano"
+    return re.sub(r"\s+", " ", value).strip() if len(key) >= 8 else "Nerazvrstano"
+
+
+def _title_occupation_override(title: str) -> str | None:
+    key = _ascii_key(title)
+    if (
+        "doktor" in key
+        and ("medicine" in key or "dentalne medicine" in key)
+        and "veterinar" not in key
+    ):
+        return "ZDRAVSTVO, SOCIJALNA SKRB, NJEGA"
+    if (
+        re.search(r"\bkeramicar(?:ka)?\b", key)
+        or "keramickih plocica" in key
+        or "polagac keramike" in key
+    ):
+        return "GRAĐEVINARI, ARHITEKTI, GEODETE"
+    return None
+
+
+def _title_occupation_fallback(title: str) -> str | None:
+    key = _ascii_key(title)
+    matches = [
+        category
+        for pattern, category in (
+            (
+                r"\b(?:kuhar|konobar|barmen|sanker|cistac|spremac|sobar)\b",
+                "JEDNOSTAVNA PRODAJNA I USLUŽNA ZANIMANJA",
+            ),
+            (
+                r"\b(?:elektricar|elektroinstalater|elektromonter|"
+                r"vodoinstalater|keramicar)\b|monter solarnih panela",
+                "GRAĐEVINARI, ARHITEKTI, GEODETE",
+            ),
+            (
+                r"\bosobni asistent\b",
+                "ZDRAVSTVO, SOCIJALNA SKRB, NJEGA",
+            ),
+            (
+                r"\b(?:radnik|radnica|operater|operaterka)\b.*"
+                r"\bproizvodn\w*",
+                "JEDNOSTAVNA GRAĐEVINSKA, PROIZVODNA I TRANSPORTNA ZANIMANJA",
+            ),
+        )
+        if re.search(pattern, key)
+    ]
+    return matches[0] if len(set(matches)) == 1 else None
 
 
 def _read_hzz(
@@ -426,15 +451,45 @@ def _read_hzz(
     records: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
     latest_date: date | None = None
-    category_by_id, categories = _read_occupation_categories(occupation_path)
+    category_candidates_by_id, occupation_categories = _read_occupation_categories(
+        occupation_path
+    )
+    region_files = sorted(path.glob("rsszup*.xml"))
+    region_feeds = [(file, ET.parse(file).getroot()) for file in region_files]
+    raw_category_counts = Counter(
+        category
+        for _, root in region_feeds
+        for item in root.findall(".//item")
+        if (
+            category := _extract_category(
+                _plain_description(item.findtext("description") or "")
+            )
+        )
+        != "Nerazvrstano"
+    )
+    categories = sorted(
+        set(occupation_categories)
+        | {
+            category
+            for category, count in raw_category_counts.items()
+            if count >= 5
+        }
+    )
+    category_by_id: dict[str, str] = {}
+    for identifier, candidates in category_candidates_by_id.items():
+        mapped_candidates = {
+            _canonical_occupation(category, categories)
+            for category in candidates
+        } - {"Nerazvrstano"}
+        if len(mapped_candidates) == 1:
+            category_by_id[identifier] = mapped_candidates.pop()
 
-    for file in sorted(path.glob("rsszup*.xml")):
+    for file, root in region_feeds:
         match = re.fullmatch(r"rsszup(\d+)\.xml", file.name, re.IGNORECASE)
         feed_id = int(match.group(1)) if match else 1000
         feed_region = HZZ_FEED_REGIONS.get(feed_id)
         if feed_region is None:
             continue
-        root = ET.parse(file).getroot()
         for item in root.findall(".//item"):
             description = _plain_description(item.findtext("description") or "")
             county = _extract_county(description) or feed_region
@@ -454,22 +509,44 @@ def _read_hzz(
                 continue
             seen.add(key)
 
-            occupation = category_by_id.get(guid)
-            if occupation is None:
-                occupation = _canonical_occupation(
-                    _extract_category(description), categories
-                )
+            raw_category = _extract_category(description)
             title = (
                 item.findtext("subject")
                 or item.findtext("title")
-                or occupation
                 or "Naziv nije naveden"
             ).strip()
+            if raw_category != "Nerazvrstano":
+                occupation = _canonical_occupation(
+                    raw_category, categories
+                )
+                category_source = "Opis oglasa"
+                if occupation == "Nerazvrstano":
+                    occupation = category_by_id.get(guid, "Nerazvrstano")
+                    if occupation != "Nerazvrstano":
+                        category_source = "HZZ RSS po zanimanju"
+            else:
+                occupation = category_by_id.get(guid, "Nerazvrstano")
+                category_source = (
+                    "HZZ RSS po zanimanju"
+                    if occupation != "Nerazvrstano"
+                    else "Nije navedena"
+                )
+            title_override = _title_occupation_override(title)
+            if title_override and title_override != occupation:
+                occupation = title_override
+                category_source = "Pravilo iz naziva oglasa"
+            elif occupation == "Nerazvrstano":
+                title_fallback = _title_occupation_fallback(title)
+                if title_fallback:
+                    occupation = title_fallback
+                    category_source = "Pravilo iz naziva oglasa"
             records.append(
                 {
                     "regija": region,
                     "zanimanje": occupation,
                     "naziv_oglasa": title,
+                    "izvorna_kategorija": raw_category,
+                    "izvor_kategorije": category_source,
                     "datum_objave": published,
                 }
             )
@@ -594,8 +671,11 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         raise FileNotFoundError(f"Nedostaje HZZ direktorij {hzz_dir}")
     if not occupation_dir.is_dir():
         raise FileNotFoundError(f"Nedostaje HZZ direktorij {occupation_dir}")
+    if not dzs_labor_path.is_file():
+        raise FileNotFoundError(f"Nedostaje DZS Excel tablica {dzs_labor_path}")
 
-    population, population_year = _read_population(population_files[0])
+    population_path = max(population_files, key=lambda file: file.name)
+    population, population_year = _read_population(population_path)
     population = _combine_values(population)
     vacancies, hzz_date = _read_hzz(hzz_dir, occupation_dir)
     reports = [
@@ -626,7 +706,7 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         )
     regional["stanovnici"] = regional["stanovnici"].astype(int)
     regional["mup_dozvole"] = regional["mup_dozvole"].astype(int)
-    regional = calculate_pressure_index(regional)
+    regional = calculate_regional_rates(regional)
 
     occupation_counts = (
         vacancies.groupby(["regija", "zanimanje"], as_index=False)
@@ -650,18 +730,7 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
         ]
     ).sort_values("datum")
     history["godina"] = history["godina"].astype(str)
-    if dzs_labor_path.exists():
-        national_labor = _read_national_labor(dzs_labor_path)
-    else:
-        national_labor = pd.DataFrame(
-            columns=[
-                "razdoblje",
-                "Aktivno stanovništvo",
-                "Zaposleni",
-                "Nezaposleni",
-                "Stopa registrirane nezaposlenosti",
-            ]
-        )
+    national_labor = _read_national_labor(dzs_labor_path)
     quality = pd.DataFrame(
         [
             {
@@ -680,29 +749,49 @@ def build_dashboard_data(data_root: Path) -> DashboardData:
                 "Razdoblje": latest["date"].strftime("%d.%m.%Y"),
                 "Preuzeto": DATA_DOWNLOAD_DATE,
                 "Status": "Uključeno",
-                "Ponovno preuzimanje": "https://mup.gov.hr/statistika/281716",
+                "Ponovno preuzimanje": (
+                    "https://data.gov.hr/ckan/dataset/"
+                    "statisticki-podaci-izdanih-dozvola-za-boravak-i-rad-u-travnju-2023-godine"
+                ),
             },
             {
                 "Izvor": "DZS",
-                "Što prikazuje": "Stanovništvo i nacionalni kontekst radne snage",
-                "Granularnost": "Regija ili Hrvatska, prema tablici",
+                "Što prikazuje": "Procjena stanovništva prema županijama",
+                "Granularnost": "Županija",
                 "Razdoblje": str(population_year),
                 "Preuzeto": DATA_DOWNLOAD_DATE,
                 "Status": "Uključeno",
                 "Ponovno preuzimanje": SOURCE_LINKS["DZS procjene stanovništva"],
+            },
+            {
+                "Izvor": "DZS",
+                "Što prikazuje": "Aktivno stanovništvo prema administrativnim izvorima",
+                "Granularnost": "Hrvatska, mjesečno; privremeni podaci",
+                "Razdoblje": (
+                    f"{national_labor['razdoblje'].iloc[0]} – "
+                    f"{national_labor['razdoblje'].iloc[-1]}"
+                    if not national_labor.empty
+                    else "Nedostupno"
+                ),
+                "Preuzeto": DATA_DOWNLOAD_DATE,
+                "Status": "Uključeno",
+                "Ponovno preuzimanje": SOURCE_LINKS[
+                    "DZS zaposlenost i aktivno stanovništvo"
+                ],
             },
         ]
     )
     return DashboardData(
         regional=regional,
         occupations=occupation_counts,
+        vacancies=vacancies,
         sectors=sectors,
         history=history,
         permit_date=latest["date"],
         population_year=population_year,
         hzz_date=hzz_date,
         source_files=(
-            population_files[0].name,
+            population_path.name,
             latest["file"],
             f"{len(list(hzz_dir.glob('rsszup*.xml')))} HZZ XML datoteka",
         ),

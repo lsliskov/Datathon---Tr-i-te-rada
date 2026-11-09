@@ -5,6 +5,8 @@ razlika i promjena u strukturi tržišta rada u Hrvatskoj.
 
 ## Pokretanje
 
+Potrebni su Python 3.10 ili noviji.
+
 ```powershell
 python -m pip install -r requirements.txt
 python -m streamlit run streamlit_app.py
@@ -12,20 +14,32 @@ python -m streamlit run streamlit_app.py
 
 Izvorne datoteke nalaze se u direktorijima `data/dzs`, `data/hzz_zupanije`,
 `data/hzz_zanimanja`, `dozvole` i `stanovništvo`. Aplikacija koristi HZZ RSS XML,
-MUP Excel izvještaje i DZS Excel podatke. Čitanje podataka predmemorirano je
-tijekom sesije.
+MUP Excel izvještaje te DZS CSV i Excel podatke. Učitavanje je predmemorirano
+Streamlitovim cacheom.
+
+Početna stranica **Sažetak** nudi odvojene filtre za godine MUP izvještaja i
+nacionalne DZS serije. HZZ RSS izvadak ne sadrži povijesnu arhivu za usporedbu
+godina. Na stranici **Zanimanja i djelatnosti**
+pretraga obuhvaća i naziv oglasa; pojedinačni naslov, izvornu HZZ kategoriju i
+primijenjeno pravilo moguće je provjeriti u tablici oglasa.
 
 ## Pokazatelji i dokumentacija
 
-Regionalni pokazatelj potražnje računa HZZ oglase i MUP-ove izdane dozvole na
-1.000 stanovnika te svaku stopu min–max normalizacijom pretvara u raspon 0–100.
-Pokazatelj je prosjek dviju ocjena i služi za brzo uspoređivanje prikazanih regija.
-Stranice aplikacije zasebno prikazuju oglase, zanimanja, djelatnosti, dozvole i
-nacionalni DZS kontekst radne snage.
+Stranica **Zanimanja po regijama** uspoređuje HZZ oglase po skupinama zanimanja
+među regijama, kao apsolutni broj ili na 1.000 stanovnika. MUP-ove izdane
+dozvole prikazuju se odvojeno kao zaseban kontekst; ne spajaju se s oglasima u
+zajednički indeks. Aplikacija također prikazuje djelatnosti iz MUP-ovih podataka
+i nacionalni DZS kontekst radne snage.
+
+Rezultati opisuju spremljene izvatke, ne nužno cijelo tržište rada. Oglasi nisu
+isto što i slobodna radna mjesta, ponovne objave s drugim identifikatorom mogu
+ostati zasebne, a pravila za razvrstavanje naslova nisu neovisno validirana.
+Udio oglasa bez pouzdane kategorije i druga ograničenja navedeni su u
+[PROJECT.md](PROJECT.md) i na stranici **Podaci i metodologija**.
 
 MUP objavljuje podatke za Zagrebačku policijsku upravu bez odvojenog iznosa za
 Grad Zagreb. Zbog toga se Grad Zagreb i Zagrebačka županija objedinjuju u
-regionalnoj analizi i pokazatelju. Karta koristi približne točke središta regija.
+regionalnoj analizi. Karta koristi približne točke središta regija.
 
 DZS tablica zaposlenosti i nezaposlenosti dodaje nacionalni vremenski kontekst.
 Metodologija, izvori i kvaliteta podataka dostupni su na stranici **Podaci i
@@ -40,3 +54,32 @@ Projekt je strukturiran prema kriterijima javnog poziva: korištenje otvorenih
 podataka, relevantnost za gospodarstvo i upravljanje, korist za zajednicu,
 inovativna primjena tehnologije, izvedivost i integracijski potencijal te jasna
 prezentacija. Mapiranje kriterija nalazi se u [PROJECT.md](PROJECT.md).
+
+## Provjere
+
+Pokrenite testove obrade podataka i prikaza svih stranica:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+## Status za predaju
+
+- Prototip pokriva izazov **Gospodarstvo i učinkovito upravljanje**.
+- U spremljenom HZZ izvatku ima 5.920 oglasa; 5.373 (90,8 %) imaju prepoznatu
+  kategoriju, a 547 ostaje nerazvrstano nakon konzervativnih pravila za jasne
+  nazive zanimanja. Klasifikacija je dostupna za provjeru uz pojedinačne oglase.
+- Provjera izvora 09.11.2026.: katalog otvorenih podataka MUP-a sadrži 41
+  izvještaj od travnja 2023. do kolovoza 2026.; u katalogu nema kasnijih
+  mjesečnih izvještaja. DZS API tablica regionalne procjene završava 2024.
+  godinom. Ponovno provjeriti izvore neposredno prije predaje.
+- HZZ RSS provjeren istog dana: najnoviji datum objave je 06.11.2026. i sadržaj
+  oglasa odgovara lokalnom izvatku. DZS-ova nacionalna radna knjiga također je
+  jednaka aktualnoj datoteci na izvoru, s podacima do rujna 2026.
+- Javni poziv traži video-prezentaciju u trajanju od tri minute; video nije dio
+  ovog projekta.
+- Projektni kod nema odabranu licencu. Licence korištenih biblioteka ne
+  određuju licencu ovog projekta.
+
+Detaljni tehnički i metodološki status te ograničenja navedeni su u
+[PROJECT.md](PROJECT.md).
