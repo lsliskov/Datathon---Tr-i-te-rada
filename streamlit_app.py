@@ -9,15 +9,10 @@ st.set_page_config(
 page = st.navigation(
     [
         st.Page(
-            "app_pages/overview.py",
-            title="Sažetak",
-            icon=":material/dashboard:",
+            "app_pages/regional_occupations.py",
+            title="Zanimanja po regijama",
+            icon=":material/work_history:",
             default=True,
-        ),
-        st.Page(
-            "app_pages/regional.py",
-            title="Regionalna analiza",
-            icon=":material/map:",
         ),
         st.Page(
             "app_pages/occupations.py",
@@ -25,9 +20,14 @@ page = st.navigation(
             icon=":material/work:",
         ),
         st.Page(
-            "app_pages/regional_occupations.py",
-            title="Zanimanja po regijama",
-            icon=":material/work_history:",
+            "app_pages/regional.py",
+            title="Regionalna analiza",
+            icon=":material/map:",
+        ),
+        st.Page(
+            "app_pages/overview.py",
+            title="Sažetak",
+            icon=":material/dashboard:",
         ),
         st.Page(
             "app_pages/methodology.py",

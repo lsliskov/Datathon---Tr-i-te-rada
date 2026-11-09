@@ -1,0 +1,12 @@
+[theme]
+base = "light"
+primaryColor = "#0f766e"
+backgroundColor = "#f8fafc"
+secondaryBackgroundColor = "#eef6f5"
+textColor = "#173042"
+font = "sans serif"
+baseRadius = "0.5rem"
+showWidgetBorder = true
+showSidebarBorder = true
+chartCategoricalColors = ["#0f766e", "#2563eb", "#d97706", "#7c3aed", "#dc2626"]
+chartSequentialColors = ["#effaf8", "#cceee8", "#99ddd2", "#5bc1b2", "#2a9d8f", "#1f7a70", "#175e59", "#104d4a", "#0a3b3a", "#052f2f"]

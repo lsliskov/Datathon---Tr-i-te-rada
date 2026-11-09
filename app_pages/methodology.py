@@ -39,11 +39,13 @@ st.subheader("Kako čitati stranice")
 with st.container(border=True):
     st.markdown(
         """
-        **Sažetak** povezuje najvažnije brojke u jednu početnu sliku i filtrira
-        MUP-ovu i DZS-ovu vremensku seriju po godini.
+        **Zanimanja po regijama** stavlja usporedbu skupina zanimanja među
+        regijama u prvi plan. Možeš birati broj oglasa, oglase na 1.000
+        stanovnika ili oglase na 1.000 stanovnika 15–64.
 
-        **Regionalna analiza** uspoređuje oglase, dozvole i stanovništvo među
-        usporedivim regionalnim jedinicama.
+        **Regionalna analiza** uspoređuje oglase i demografski kontekst među
+        usporedivim regionalnim jedinicama, dok su MUP-ove dozvole dodatni odvojeni
+        kontekst.
 
         **Zanimanja i djelatnosti** prikazuje HZZ kategorije, omogućuje pretragu
         pojedinačnih naziva oglasa i prikazuje djelatnosti s najviše MUP-ovih dozvola.
@@ -66,13 +68,18 @@ st.markdown(
       Kategorije su šire skupine, ne precizan stručni profil svakog posla.
     - MUP podatke prikazuje po policijskoj upravi i djelatnosti.
     - DZS stanovništvo služi kao nazivnik za stope na 1.000 stanovnika.
+    - Regionalni demografski nazivnik odnosi se na procjenu za 2024. godinu.
+      Oglasi su noviji, a dob 15–64 nije isto što i aktivna radna snaga.
+    - Prikaz oglasa na 1.000 stanovnika 15–64 opisuje odnos oglasa prema
+      veličini dobne skupine; ne predstavlja broj slobodnih radnih mjesta po
+      aktivnom radniku.
     - DZS tablica zaposlenosti i nezaposlenosti daje nacionalnu vremensku seriju.
     - Regionalni prikaz zanimanja uključuje oglase s pouzdano prepoznatom
       kategorijom; broj nerazvrstanih oglasa naveden je uz prikaz.
-    - MUP djelatnosti i HZZ zanimanja ostaju odvojene klasifikacije, pa svaka zadržava
-      svoje izvorno značenje.
-    - HZZ oglasi i MUP-ove dozvole prikazuju se zasebno; ne spajaju se u
-      kompozitni indeks pritiska.
+    - MUP djelatnosti i HZZ zanimanja ostaju odvojene klasifikacije, pa svaka
+      zadržava svoje izvorno značenje.
+    - MUP-ove dozvole prikazuju se kao dodatni kontekst. One su izdane dozvole,
+      ne broj trenutačno zaposlenih stranih radnika.
     """
 )
 

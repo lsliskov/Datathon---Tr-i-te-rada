@@ -35,8 +35,8 @@ with st.sidebar:
 
 st.title("Sažetak tržišta rada", anchor=False)
 st.caption(
-    "Ovdje možeš brzo vidjeti gdje se objavljuje najviše oglasa, koliko je dozvola "
-    "izdano i kako se vrijednosti razlikuju među regijama."
+    "Ovdje možeš brzo vidjeti koja se zanimanja traže i kako se oglasi razlikuju "
+    "među regijama. Demografija daje kontekst za usporedbu regionalnih stopa."
 )
 st.caption(
     f"Razdoblja: HZZ objave do {data.hzz_date:%d.%m.%Y} · "
@@ -60,17 +60,12 @@ with st.container(horizontal=True):
         help="Broj oglasa koji su dostupni u spremljenom HZZ RSS izvatku. Oglas ne mora odgovarati samo jednom radnom mjestu.",
     )
     st.metric(
-        "Izdane MUP dozvole",
-        format_number(data.regional["mup_dozvole"].sum()),
-        border=True,
-        help="Dozvole zbrojene u najnovijem spremljenom MUP izvještaju; to nije broj stranih radnika koji su trenutačno zaposleni.",
-    )
-    st.metric(
         "Najviše oglasa",
         top_hzz_region,
         border=True,
         help="Regija s najviše trenutno dostupnih HZZ oglasa u izvatku.",
     )
+    st.metric("Prosječni udio 15–64", f"{data.regional['udio_15_64'].mean():.1f} %", border=True)
     if latest_labor is not None:
         st.metric(
             "Nezaposleni prema DZS-u",
@@ -91,26 +86,43 @@ st.caption(
     else f"MUP izvještaj: {data.permit_date:%d.%m.%Y} · stanovništvo: procjena za {data.population_year}."
 )
 st.write(
-    "Broj oglasa govori gdje su trenutno objavljene prilike, a MUP-ove dozvole "
-    "daju dodatni uvid u izdane dozvole za rad i boravak. DZS graf prikazuje "
-    "nacionalno kretanje zaposlenih i nezaposlenih. Svaki izvor obuhvaća drugo "
-    "razdoblje pa ih treba čitati kao povezane, ali ne potpuno istovremene pokazatelje."
+    "Broj oglasa govori gdje su trenutno objavljene prilike, a demografski podaci "
+    f"pomažu razumjeti regionalni kontekst. Demografski nazivnik odnosi se na "
+    f"{data.demographic_year}, dok su oglasi noviji; dob 15–64 nije isto što i "
+    "aktivna radna snaga."
 )
 
 left, right = st.columns(2)
 with left:
-    st.subheader("U kojim regijama je izdano najviše dozvola?")
-    st.caption(
-        f"Broj dozvola u zadnjem MUP izvještaju ({data.permit_date:%d.%m.%Y}); "
-        "vrijednosti su kumulativne od početka godine."
-    )
-    chart_data = data.regional.nlargest(8, "mup_dozvole").sort_values("mup_dozvole")
+    st.subheader("U kojim regijama je najviše oglasa?")
+    chart_data = data.regional.nlargest(8, "hzz_oglasi").sort_values("hzz_oglasi")
     fig = px.bar(
         chart_data,
-        x="mup_dozvole",
+        x="hzz_oglasi",
         y="regija",
         orientation="h",
-        labels={"mup_dozvole": "Dozvole", "regija": ""},
+        labels={"hzz_oglasi": "HZZ oglasi", "regija": ""},
+        color_discrete_sequence=[PRIMARY_CHART_COLOR],
+    )
+    fig.update_layout(showlegend=False, coloraxis_showscale=False, height=390)
+    st.plotly_chart(
+        fig,
+        width="stretch",
+        config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
+    )
+with right:
+    st.subheader("Demografski kontekst regija")
+    st.caption(
+        f"Udio stanovništva 15–64 i 65+ prema DZS procjeni za {data.demographic_year}. "
+        "Dobna skupina nije isto što i aktivna radna snaga."
+    )
+    demographic_chart = data.regional.nlargest(8, "udio_15_64").sort_values("udio_15_64")
+    fig = px.bar(
+        demographic_chart,
+        x="udio_15_64",
+        y="regija",
+        orientation="h",
+        labels={"udio_15_64": "Udio stanovništva 15–64 (%)", "regija": ""},
         color_discrete_sequence=[PRIMARY_CHART_COLOR],
     )
     fig.update_layout(showlegend=False, coloraxis_showscale=False, height=390)
@@ -120,11 +132,10 @@ with left:
         config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
     )
 
-with right:
-    st.subheader("Kako su se mijenjali MUP-ovi izvještaji?")
+with st.expander("Dodatni kontekst: MUP-ove izdane dozvole", icon=":material/info:"):
     st.caption(
-        "Svaka točka prikazuje zbroj dozvola do datuma izvještaja. Odaberi godine "
-        "u filtru sa strane; novi izvadak može sadržavati više ili manje izvještaja."
+        f"Zadnji MUP izvještaj: {data.permit_date:%d.%m.%Y}. Vrijednosti su "
+        "kumulativne izdane dozvole, ne broj trenutačno zaposlenih stranih radnika."
     )
     history = data.history.loc[
         data.history["godina"].astype(int).isin(selected_mup_years)
@@ -138,7 +149,7 @@ with right:
             y="izdane_dozvole",
             color="godina",
             markers=True,
-            labels={"datum": "Datum izvještaja", "izdane_dozvole": "Dozvole", "godina": "Godina"},
+            labels={"datum": "Datum izvještaja", "izdane_dozvole": "Izdane dozvole", "godina": "Godina"},
         )
         fig.update_layout(height=390, legend_title_text="Godina")
         st.plotly_chart(
@@ -146,9 +157,6 @@ with right:
             width="stretch",
             config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
         )
-    st.caption(
-        "Početkom nove godine zbroj kreće ponovno od početka — to nije pad broja zaposlenih."
-    )
 
 st.subheader("Gdje je najviše dostupnih oglasa?")
 st.caption(
@@ -182,9 +190,25 @@ if not data.national_labor.empty:
         st.info("Odaberite barem jednu godinu DZS podataka.")
     else:
         labor = filtered_labor.rename(columns={"razdoblje": "Razdoblje"})
-        st.line_chart(
-            labor.set_index("Razdoblje")[["Nezaposleni", "Zaposleni"]],
-            y_label="Osobe",
+        labor_chart = labor.melt(
+            id_vars="Razdoblje",
+            value_vars=["Nezaposleni", "Zaposleni"],
+            var_name="Skupina",
+            value_name="Osobe",
+        )
+        fig = px.line(
+            labor_chart,
+            x="Razdoblje",
+            y="Osobe",
+            color="Skupina",
+            markers=True,
+            labels={"Razdoblje": "Razdoblje", "Osobe": "Osobe", "Skupina": ""},
+        )
+        fig.update_layout(height=400)
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config={"scrollZoom": False, "doubleClick": False, "displayModeBar": False},
         )
         st.caption(
             "Serija prikazuje dostupne mjesečne vrijednosti iz DZS-ove tablice "
